@@ -1,3 +1,0 @@
-[qiime2.plugins]
-q2-humann3 = q2_humann3.plugin_setup:plugin
-
