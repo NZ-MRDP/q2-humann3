@@ -1,0 +1,9 @@
+setup.py
+q2_humann2.egg-info/PKG-INFO
+q2_humann2.egg-info/SOURCES.txt
+q2_humann2.egg-info/dependency_links.txt
+q2_humann2.egg-info/entry_points.txt
+q2_humann2.egg-info/top_level.txt
+q2_humann3/__init__.py
+q2_humann3/_humann.py
+q2_humann3/plugin_setup.py
