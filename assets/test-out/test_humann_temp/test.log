@@ -1,0 +1,135 @@
+09/01/2022 03:53:19 PM - humann.humann - INFO: Running humann v3.5
+09/01/2022 03:53:19 PM - humann.humann - INFO: Output files will be written to: /Users/jhch/Code/q2-humann3/assets/test-out
+09/01/2022 03:53:19 PM - humann.humann - INFO: Writing temp files to directory: /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp
+09/01/2022 03:53:19 PM - humann.utilities - INFO: File ( /Users/jhch/Downloads/test.fastq ) is of format:  fastq
+09/01/2022 03:53:19 PM - humann.humann - INFO: Removing spaces from identifiers in input file
+09/01/2022 03:53:19 PM - humann.utilities - DEBUG: Check software, metaphlan, for required version, 3.0
+09/01/2022 03:53:21 PM - humann.utilities - INFO: Using metaphlan version 3.1
+09/01/2022 03:53:21 PM - humann.utilities - DEBUG: Check software, bowtie2, for required version, 2.2
+09/01/2022 03:53:21 PM - humann.utilities - INFO: Using bowtie2 version 2.4
+09/01/2022 03:53:21 PM - humann.humann - INFO: Search mode set to uniref90 because a uniref90 translated search database is selected
+09/01/2022 03:53:21 PM - humann.utilities - DEBUG: Check software, diamond, for required version, 0.9.36
+09/01/2022 03:53:21 PM - humann.utilities - INFO: Using diamond version 2.0.15
+09/01/2022 03:53:21 PM - humann.config - INFO: 
+Run config settings: 
+
+DATABASE SETTINGS
+nucleotide database folder = /Users/jhch/Code/q2-humann3/assets/dbs/chocophlan_DEMO
+protein database folder = /Users/jhch/Code/q2-humann3/assets/dbs/uniref_DEMO
+pathways database file 1 = /Users/jhch/miniconda3/envs/qiime2-2022.8/lib/python3.8/site-packages/humann/data/pathways/metacyc_reactions_level4ec_only.uniref.bz2
+pathways database file 2 = /Users/jhch/miniconda3/envs/qiime2-2022.8/lib/python3.8/site-packages/humann/data/pathways/metacyc_pathways_structured_filtered_v24
+utility mapping database folder = /Users/jhch/miniconda3/envs/qiime2-2022.8/lib/python3.8/site-packages/humann/data/misc
+
+RUN MODES
+resume = False
+verbose = False
+bypass prescreen = False
+bypass nucleotide index = False
+bypass nucleotide search = False
+bypass translated search = False
+translated search = diamond
+threads = 1
+
+SEARCH MODE
+search mode = uniref90
+nucleotide identity threshold = 0.0
+translated identity threshold = 80.0
+
+ALIGNMENT SETTINGS
+bowtie2 options = --very-sensitive
+diamond options = --top 1 --outfmt 6
+evalue threshold = 1.0
+prescreen threshold = 0.01
+translated subject coverage threshold = 50.0
+translated query coverage threshold = 90.0
+nucleotide subject coverage threshold = 50.0
+nucleotide query coverage threshold = 90.0
+
+PATHWAYS SETTINGS
+minpath = on
+xipe = off
+gap fill = on
+
+INPUT AND OUTPUT FORMATS
+input file format = fastq
+output file format = tsv
+output max decimals = 10
+remove stratified output = False
+remove column description output = False
+log level = DEBUG
+
+09/01/2022 03:53:21 PM - humann.store - DEBUG: Initialize Alignments class instance to minimize memory use
+09/01/2022 03:53:21 PM - humann.store - DEBUG: Initialize Reads class instance to minimize memory use
+09/01/2022 03:53:34 PM - humann.humann - INFO: Load pathways database part 1: /Users/jhch/miniconda3/envs/qiime2-2022.8/lib/python3.8/site-packages/humann/data/pathways/metacyc_reactions_level4ec_only.uniref.bz2
+09/01/2022 03:53:34 PM - humann.humann - INFO: Load pathways database part 2: /Users/jhch/miniconda3/envs/qiime2-2022.8/lib/python3.8/site-packages/humann/data/pathways/metacyc_pathways_structured_filtered_v24
+09/01/2022 03:53:34 PM - humann.search.prescreen - INFO: Running metaphlan ........
+09/01/2022 03:53:34 PM - humann.utilities - DEBUG: Using software: /Users/jhch/miniconda3/envs/qiime2-2022.8/bin/metaphlan
+09/01/2022 03:53:34 PM - humann.utilities - INFO: Execute command: /Users/jhch/miniconda3/envs/qiime2-2022.8/bin/metaphlan /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s/tmpc2226cuz -t rel_ab -o /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/test_metaphlan_bugs_list.tsv --input_type fastq --bowtie2out /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/test_metaphlan_bowtie2.txt
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: b''
+09/01/2022 03:55:02 PM - humann.humann - INFO: TIMESTAMP: Completed 	prescreen 	:	 88	 seconds
+09/01/2022 03:55:02 PM - humann.search.prescreen - INFO: Total species selected from prescreen: 0
+09/01/2022 03:55:02 PM - humann.search.prescreen - DEBUG: 
+
+No species were selected from the prescreen.
+Because of this the custom ChocoPhlAn database is empty.
+This will result in zero species-specific gene families and pathways.
+
+
+09/01/2022 03:55:02 PM - humann.humann - INFO: TIMESTAMP: Completed 	custom database creation 	:	 0	 seconds
+09/01/2022 03:55:02 PM - humann.humann - DEBUG: Custom database is empty
+09/01/2022 03:55:02 PM - humann.store - DEBUG: Initialize Reads class instance to minimize memory use
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Remove file: /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s/tmpkqzzyikg
+09/01/2022 03:55:02 PM - humann.search.translated - DEBUG: Convert unaligned reads fastq file to fasta
+09/01/2022 03:55:02 PM - humann.search.translated - INFO: Running diamond ........
+09/01/2022 03:55:02 PM - humann.search.translated - INFO: Aligning to reference database: uniref90_demo_prots_v201901b.dmnd
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Remove file: /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s/diamond_m8_pp3yvde_
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Using software: /Users/jhch/miniconda3/envs/qiime2-2022.8/bin/diamond
+09/01/2022 03:55:02 PM - humann.utilities - INFO: Execute command: /Users/jhch/miniconda3/envs/qiime2-2022.8/bin/diamond blastx --query /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s/tmpt32oholr --evalue 1.0 --threads 1 --top 1 --outfmt 6 --db /Users/jhch/Code/q2-humann3/assets/dbs/uniref_DEMO/uniref90_demo_prots_v201901b --out /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s/diamond_m8_pp3yvde_ --tmpdir /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: b'diamond v2.0.15.153 (C) Max Planck Society for the Advancement of Science\nDocumentation, support and updates available at http://www.diamondsearch.org\nPlease cite: http://dx.doi.org/10.1038/s41592-021-01101-x Nature Methods (2021)\n\n#CPU threads: 1\nScoring parameters: (Matrix=BLOSUM62 Lambda=0.267 K=0.041 Penalties=11/1)\nTemporary directory: /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s\nPercentage range of top alignment score to report hits: 1\nOpening the database...  [0s]\nDatabase: /Users/jhch/Code/q2-humann3/assets/dbs/uniref_DEMO/uniref90_demo_prots_v201901b.dmnd (type: Diamond database, sequences: 44, letters: 18842)\nBlock size = 2000000000\nOpening the input file...  [0s]\nOpening the output file...  [0s]\nLoading query sequences...  [0s]\nMasking queries...  [0.001s]\nAlgorithm: Double-indexed\nBuilding query histograms...  [0.001s]\nAllocating buffers...  [0s]\nLoading reference sequences...  [0s]\nMasking reference...  [0s]\nInitializing temporary storage...  [0s]\nBuilding reference histograms...  [0s]\nAllocating buffers...  [0s]\nProcessing query block 1, reference block 1/1, shape 1/2, index chunk 1/4.\nBuilding reference seed array...  [0s]\nBuilding query seed array...  [0s]\nComputing hash join...  [0s]\nMasking low complexity seeds...  [0s]\nSearching alignments...  [0s]\nProcessing query block 1, reference block 1/1, shape 1/2, index chunk 2/4.\nBuilding reference seed array...  [0s]\nBuilding query seed array...  [0s]\nComputing hash join...  [0s]\nMasking low complexity seeds...  [0s]\nSearching alignments...  [0s]\nProcessing query block 1, reference block 1/1, shape 1/2, index chunk 3/4.\nBuilding reference seed array...  [0s]\nBuilding query seed array...  [0s]\nComputing hash join...  [0s]\nMasking low complexity seeds...  [0s]\nSearching alignments...  [0s]\nProcessing query block 1, reference block 1/1, shape 1/2, index chunk 4/4.\nBuilding reference seed array...  [0s]\nBuilding query seed array...  [0s]\nComputing hash join...  [0s]\nMasking low complexity seeds...  [0s]\nSearching alignments...  [0s]\nProcessing query block 1, reference block 1/1, shape 2/2, index chunk 1/4.\nBuilding reference seed array...  [0s]\nBuilding query seed array...  [0s]\nComputing hash join...  [0s]\nMasking low complexity seeds...  [0s]\nSearching alignments...  [0s]\nProcessing query block 1, reference block 1/1, shape 2/2, index chunk 2/4.\nBuilding reference seed array...  [0s]\nBuilding query seed array...  [0s]\nComputing hash join...  [0s]\nMasking low complexity seeds...  [0s]\nSearching alignments...  [0s]\nProcessing query block 1, reference block 1/1, shape 2/2, index chunk 3/4.\nBuilding reference seed array...  [0s]\nBuilding query seed array...  [0s]\nComputing hash join...  [0s]\nMasking low complexity seeds...  [0s]\nSearching alignments...  [0s]\nProcessing query block 1, reference block 1/1, shape 2/2, index chunk 4/4.\nBuilding reference seed array...  [0s]\nBuilding query seed array...  [0s]\nComputing hash join...  [0s]\nMasking low complexity seeds...  [0s]\nSearching alignments...  [0s]\nDeallocating buffers...  [0s]\nClearing query masking...  [0s]\nComputing alignments...  [0.001s]\nDeallocating reference...  [0s]\nLoading reference sequences...  [0s]\nDeallocating buffers...  [0s]\nDeallocating queries...  [0s]\nLoading query sequences...  [0s]\nClosing the input file...  [0s]\nClosing the output file...  [0s]\nCleaning up...  [0s]\nTotal time = 0.089s\nReported 0 pairwise alignments, 0 HSPs.\n0 queries aligned.\n'
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Using software: /bin/cat
+09/01/2022 03:55:02 PM - humann.utilities - INFO: Execute command: /bin/cat /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s/diamond_m8_pp3yvde_
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Remove file: /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s/tmpt32oholr
+09/01/2022 03:55:02 PM - humann.humann - INFO: TIMESTAMP: Completed 	translated alignment 	:	 0	 seconds
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments where percent identity is not a number: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments where alignment length is not a number: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments where E-value is not a number: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments not included based on large e-value: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments not included based on small percent identity: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments not included based on small query coverage: 0
+09/01/2022 03:55:02 PM - humann.search.blastx_coverage - INFO: Total alignments without coverage information: 0
+09/01/2022 03:55:02 PM - humann.search.blastx_coverage - INFO: Total proteins in blastx output: 0
+09/01/2022 03:55:02 PM - humann.search.blastx_coverage - INFO: Total proteins without lengths: 0
+09/01/2022 03:55:02 PM - humann.search.blastx_coverage - INFO: Proteins with coverage greater than threshold (50.0): 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments where percent identity is not a number: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments where alignment length is not a number: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments where E-value is not a number: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments not included based on large e-value: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments not included based on small percent identity: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Total alignments not included based on small query coverage: 0
+09/01/2022 03:55:02 PM - humann.search.translated - DEBUG: Total translated alignments not included based on small subject coverage value: 0
+09/01/2022 03:55:02 PM - humann.utilities - DEBUG: Remove file: /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s/tmpcrowcfsw
+09/01/2022 03:55:02 PM - humann.humann - INFO: TIMESTAMP: Completed 	translated alignment post-processing 	:	 0	 seconds
+09/01/2022 03:55:02 PM - humann.humann - INFO: Total bugs after translated alignment: 0
+09/01/2022 03:55:02 PM - humann.humann - INFO: 
+
+09/01/2022 03:55:02 PM - humann.humann - INFO: Total gene families after translated alignment: 0
+09/01/2022 03:55:02 PM - humann.humann - INFO: Unaligned reads after translated alignment: 100.0000000000 %
+09/01/2022 03:55:02 PM - humann.humann - INFO: Computing gene families ...
+09/01/2022 03:55:02 PM - humann.quantify.families - DEBUG: Compute gene families
+09/01/2022 03:55:02 PM - humann.store - INFO: 
+Total gene families  : 0
+
+09/01/2022 03:55:11 PM - humann.humann - INFO: TIMESTAMP: Completed 	computing gene families 	:	 9	 seconds
+09/01/2022 03:55:11 PM - humann.humann - INFO: Computing pathways abundance and coverage ...
+09/01/2022 03:55:11 PM - humann.quantify.modules - DEBUG: Write flat reactions to pathways file for Minpath
+09/01/2022 03:55:11 PM - humann.quantify.modules - INFO: Compute reaction scores for bug: all
+09/01/2022 03:55:12 PM - humann.quantify.modules - DEBUG: Print pathways _Abundance
+09/01/2022 03:55:12 PM - humann.quantify.modules - DEBUG: Print pathways _Coverage
+09/01/2022 03:55:12 PM - humann.humann - INFO: TIMESTAMP: Completed 	computing pathways 	:	 1	 seconds
+09/01/2022 03:55:12 PM - humann.humann - INFO: 
+Output files created: 
+/Users/jhch/Code/q2-humann3/assets/test-out/test_genefamilies.tsv
+/Users/jhch/Code/q2-humann3/assets/test-out/test_pathabundance.tsv
+/Users/jhch/Code/q2-humann3/assets/test-out/test_pathcoverage.tsv
+
+09/01/2022 03:55:12 PM - humann.utilities - DEBUG: Remove directory: /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s

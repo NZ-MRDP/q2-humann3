@@ -3,14 +3,26 @@ import subprocess
 import tempfile
 
 import biom
+from q2_types.bowtie2 import Bowtie2IndexDirFmt
+
 # from q2_types.feature_table import FeatureTable, Frequency
 from q2_types.per_sample_sequences import (
-    FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
+    FastqGzFormat,
+    SingleLanePerSampleSingleEndFastqDirFmt,
+)
+from q2_humann3._format import HumannDbDirFormat
 
 # import typing
 
 
-def _single_sample(sample: str, threads: int, output: str) -> None:
+def _single_sample(
+    sample: str,
+    nucleotide_database: str,
+    protein_database: str,
+    pathway_database: str,
+    threads: int,
+    output: str,
+) -> None:
     """Run a single sample through humann2"""
     cmd = [
         "humann3",
@@ -23,6 +35,10 @@ def _single_sample(sample: str, threads: int, output: str) -> None:
         "--output-format",
         "biom",
         "--remove-column-description-output",
+        # TODO: Add all required databases
+        # "--nucleotide-database" % nucleotide_database,
+        # "--protein-database" % nucleotide_database,
+        # "---database" % nucleotide_database,
     ]
     subprocess.run(cmd, check=True)
 
@@ -66,8 +82,12 @@ def _renorm(table: str, method: str, output: str) -> None:
 
 
 def run(
-    demultiplexed_seqs: SingleLanePerSampleSingleEndFastqDirFmt, threads: int = 1
-) -> (biom.Table, biom.Table, biom.Table):  # type:  ignore
+    demultiplexed_seqs: SingleLanePerSampleSingleEndFastqDirFmt,
+    nucleotide_database: HumannDbDirFormat,
+    protein_database: HumannDbDirFormat,
+    pathway_database: HumannDbDirFormat,
+    threads: int = 1,
+) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
 
     """Run samples through humann2
     Parameters
@@ -90,25 +110,19 @@ def run(
     biom.Table
         A pathway abundance table normalized by relative abundance
     """
-    # import sys
-    # from distutils.spawn import find_executable
-
-    # if find_executable("metaphlan2.py") is None:
-    #     sys.stderr.write(
-    #         (
-    #             "Cannot find metaphlan2.py in $PATH. Please install "
-    #             "metaphlan2 prior to installing the q2-humann2 "
-    #             "plugin as it is a required dependency. Details can "
-    #             "be found here: "
-    #             "https://bitbucket.org/biobakery/metaphlan2.\n"
-    #         )
-    #     )
-    #     sys.exit(1)
-
+    # TODO: update call with references to tmp files containing databases
+    # TODO: Do a bunch of stuff to get database files
     with tempfile.TemporaryDirectory() as tmp:
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
         for _, view in iter_view:
-            _single_sample(str(view), threads, tmp)
+            _single_sample(
+                str(view),
+                nucleotide_database=str(nucleotide_database),
+                protein_database=str(protein_database),
+                pathway_database=str(pathway_database),
+                threads=threads,
+                output=tmp,
+            )
 
         final_tables = {}
         for (name, method) in [
