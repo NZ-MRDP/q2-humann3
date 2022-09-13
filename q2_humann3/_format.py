@@ -2,7 +2,7 @@ from qiime2.plugin import model
 
 
 class HumannDbFileFormat(model.BinaryFileFormat):
-    def _validate_(self, level):
+    def _validate_(self, *args):
         pass
 
 
@@ -11,4 +11,5 @@ class HumannDbDirFormat(model.DirectoryFormat):
 
     @data.set_path_maker
     def data_path_maker(self, file):
+
         return file

@@ -16,10 +16,10 @@ from q2_humann3._format import HumannDbDirFormat
 
 
 def _single_sample(
-    sample: str,
-    nucleotide_database: str,
-    protein_database: str,
-    pathway_database: str,
+    sequence_sample_path: str,
+    nucleotide_database_path: str,
+    protein_database_path: str,
+    pathway_database_path: str,
     threads: int,
     output: str,
 ) -> None:
@@ -27,7 +27,7 @@ def _single_sample(
     cmd = [
         "humann3",
         "-i",
-        "%s" % sample,
+        "%s" % sequence_sample_path,
         "-o",
         "%s" % output,
         "--threads",
@@ -35,6 +35,12 @@ def _single_sample(
         "--output-format",
         "biom",
         "--remove-column-description-output",
+        "--nucleotide-database",
+        nucleotide_database_path,
+        "--protein-database",
+        protein_database_path,
+        "--pathway-database",
+        pathway_database_path,
         # TODO: Add all required databases
         # "--nucleotide-database" % nucleotide_database,
         # "--protein-database" % nucleotide_database,
@@ -110,16 +116,14 @@ def run(
     biom.Table
         A pathway abundance table normalized by relative abundance
     """
-    # TODO: update call with references to tmp files containing databases
-    # TODO: Do a bunch of stuff to get database files
     with tempfile.TemporaryDirectory() as tmp:
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
         for _, view in iter_view:
             _single_sample(
                 str(view),
-                nucleotide_database=str(nucleotide_database),
-                protein_database=str(protein_database),
-                pathway_database=str(pathway_database),
+                nucleotide_database_path=str(nucleotide_database),
+                protein_database_path=str(protein_database),
+                pathway_database_path=str(pathway_database),
                 threads=threads,
                 output=tmp,
             )
