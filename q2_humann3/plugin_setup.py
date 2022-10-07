@@ -4,21 +4,17 @@ from q2_types.per_sample_sequences import SequencesWithQuality
 from q2_types.sample_data import SampleData
 from qiime2.plugin import SemanticType
 
+import q2_humann3
+from q2_humann3._format import (
+    HumannDbDirFormat,
+    HumannDbFileFormat,
+    HumannDBSingleFileDirFormat,
+    Bowtie2IndexDirFmt2,
+)
+from q2_humann3._types import HumannDB, Nucleotide, Pathway, PathwayMapping, Protein
+
 # from q2_types.bowtie2 import Bowtie2Index
 
-import q2_humann3
-from q2_humann3._types import (
-    HumannDB,
-    Nucleotide,
-    Protein,
-    Pathway,
-    PathwayMapping,
-)
-from q2_humann3._format import (
-    HumannDbFileFormat,
-    HumannDbDirFormat,
-    HumannDBSingleFileDirFormat,
-)
 
 plugin = qiime2.plugin.Plugin(
     name="humann3",
@@ -36,13 +32,19 @@ plugin = qiime2.plugin.Plugin(
 plugin.register_semantic_types(HumannDB, Nucleotide, Pathway, Protein)
 
 plugin.register_formats(
-    HumannDbDirFormat, HumannDbFileFormat, HumannDBSingleFileDirFormat
+    HumannDbDirFormat,
+    HumannDbFileFormat,
+    HumannDBSingleFileDirFormat,
+    Bowtie2IndexDirFmt2,
 )
 
 plugin.register_semantic_type_to_format(
     HumannDB[Nucleotide | Protein], HumannDbDirFormat
 )
+Bowtie2Index2 = SemanticType("Bowtie2Index2")
 
+plugin.register_semantic_types(Bowtie2Index2)
+plugin.register_semantic_type_to_format(Bowtie2Index2, Bowtie2IndexDirFmt2)
 
 # TODO: Add pathways and investigate what the other "databases" look like
 plugin.register_semantic_type_to_format(
@@ -56,6 +58,7 @@ plugin.methods.register_function(
         "protein_database": HumannDB[Protein],
         "pathway_database": HumannDB[Pathway],
         "pathway_mapping": HumannDB[PathwayMapping],
+        "bowtie_database": Bowtie2Index2,
     },
     parameters={"threads": qiime2.plugin.Int},
     name="Characterize samples using HUMAnN2",

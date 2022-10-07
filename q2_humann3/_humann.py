@@ -4,13 +4,19 @@ import tempfile
 
 import biom
 
+# from q2_types.bowtie2 import Bowtie2IndexDirFmt
+
 # from q2_types.feature_table import FeatureTable, Frequency
 from q2_types.per_sample_sequences import (
     FastqGzFormat,
     SingleLanePerSampleSingleEndFastqDirFmt,
 )
 
-from q2_humann3._format import HumannDbDirFormat, HumannDBSingleFileDirFormat
+from q2_humann3._format import (
+    HumannDbDirFormat,
+    HumannDBSingleFileDirFormat,
+    Bowtie2IndexDirFmt2,
+)
 
 # import typing
 
@@ -21,9 +27,14 @@ def _single_sample(
     protein_database_path: str,
     pathway_database_path: str,
     pathway_mapping_path: str,
+    bowtie_database_path: str,
     threads: int,
     output: str,
 ) -> None:
+    print(
+        "%    %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   "
+    )
+    print(os.listdir(bowtie_database_path))
     cmd = [
         "humann3",
         "-i",
@@ -44,6 +55,11 @@ def _single_sample(
         "{},{}".format(
             os.path.join(pathway_mapping_path, "mapping.gz"),
             os.path.join(pathway_database_path, "mapping.gz"),
+        ),
+        "--metaphlan-options",
+        # --offline # Don't check for or install databases
+        "--offline --bowtie2db {} --index mpa_vJan21_CHOCOPhlAnSGB_202103".format(
+            bowtie_database_path
         ),
     ]
     subprocess.run(cmd, check=True)
@@ -93,6 +109,7 @@ def run(
     protein_database: HumannDbDirFormat,
     pathway_database: HumannDBSingleFileDirFormat,
     pathway_mapping: HumannDBSingleFileDirFormat,
+    bowtie_database: Bowtie2IndexDirFmt2,
     threads: int = 1,
 ) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
 
@@ -127,6 +144,7 @@ def run(
                 protein_database_path=str(protein_database),
                 pathway_database_path=str(pathway_database),
                 pathway_mapping_path=str(pathway_mapping),
+                bowtie_database_path=str(bowtie_database),
                 threads=threads,
                 output=tmp,
             )

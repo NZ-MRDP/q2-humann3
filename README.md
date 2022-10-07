@@ -1,3 +1,28 @@
+## Installing q2-humann3
+q2-humann3 must be installed in a QIIME2 environment, for help installing it see the [documentation](https://docs.qiime2.org/2022.8/install/native/#install-qiime-2-within-a-conda-environment)
+
+Inside the QIIME2 conda environment
+
+#### install Humann3
+```bash
+pip install humann --no-binary :all:
+```
+#### Install q2-humann3
+from the root q2-humann3 directory
+
+```bash
+pip install .
+qiime dev refresh-cache
+```
+
+####
+Ensure it is installed
+
+```bash
+qiime humann3 run --help
+```
+
+
 ### Helpful commands for testing q2-humann3
 There is data in the `.assets` directory that can be used for testing 
 
