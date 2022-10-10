@@ -1,24 +1,35 @@
 import os
 import subprocess
 import tempfile
+from enum import Enum
 
 import biom
+# from q2_types.feature_table import FeatureTable, Frequency
+from q2_types.per_sample_sequences import (
+    FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
+
+from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
+                                HumannDBSingleFileDirFormat)
 
 # from q2_types.bowtie2 import Bowtie2IndexDirFmt
 
-# from q2_types.feature_table import FeatureTable, Frequency
-from q2_types.per_sample_sequences import (
-    FastqGzFormat,
-    SingleLanePerSampleSingleEndFastqDirFmt,
-)
-
-from q2_humann3._format import (
-    HumannDbDirFormat,
-    HumannDBSingleFileDirFormat,
-    Bowtie2IndexDirFmt2,
-)
-
 # import typing
+
+class MemoryEnum(str, Enum):
+    """
+    MemoryEnum.
+
+    Enumerator for the memory use.
+
+    Parameters
+    ----------
+    str : string input
+        What is being passed to the enum
+    Enum : Enum
+        Ensures it is a enum
+    """
+    minimum = "minimum"
+    maximum = "maximum"
 
 
 def _single_sample(
@@ -29,6 +40,8 @@ def _single_sample(
     pathway_mapping_path: str,
     bowtie_database_path: str,
     threads: int,
+    memory_use: str,
+    metaphlan_options: MemoryEnum,
     output: str,
 ) -> None:
     print(
@@ -43,6 +56,8 @@ def _single_sample(
         output,
         "--threads",
         str(threads),
+        "--memory-use",
+        memory_use,
         "--output-format",
         "biom",
         "--remove-column-description-output",
@@ -57,6 +72,7 @@ def _single_sample(
             os.path.join(pathway_database_path, "mapping.gz"),
         ),
         "--metaphlan-options",
+        metaphlan_options,
         # --offline # Don't check for or install databases
         "--offline --bowtie2db {} --index mpa_vJan21_CHOCOPhlAnSGB_202103".format(
             bowtie_database_path
@@ -110,21 +126,30 @@ def run(
     pathway_database: HumannDBSingleFileDirFormat,
     pathway_mapping: HumannDBSingleFileDirFormat,
     bowtie_database: Bowtie2IndexDirFmt2,
+    metaphlan_options: str,
     threads: int = 1,
+    memory_use: MemoryEnum = "minimum",
 ) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
+    """
+    Run samples through humann2.
 
-    """Run samples through humann2
     Parameters
     ----------
     samples : SingleLanePerSampleSingleEndFastqDirFmt
         Samples to process
     threads : int
         The number of threads that humann2 should use
+    memory_use : MemoryEnum
+        The amount of memory to use, default is minimum
+    metaphlan_options : str
+        Metaphlan post-mapping and output arguments (NO dbs/files)
+
     Notes
     -----
     This command consumes per-sample FASTQs, and takes those data through
     "humann2", then through "humann2_join_tables" and finalizes with
     "humann2_renorm_table".
+
     Returns
     -------
     biom.Table
@@ -134,7 +159,6 @@ def run(
     biom.Table
         A pathway abundance table normalized by relative abundance
     """
-
     with tempfile.TemporaryDirectory() as tmp:
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
         for _, view in iter_view:
@@ -146,6 +170,8 @@ def run(
                 pathway_mapping_path=str(pathway_mapping),
                 bowtie_database_path=str(bowtie_database),
                 threads=threads,
+                memory_use=memory_use,
+                metaphlan_options=metaphlan_options,
                 output=tmp,
             )
 
