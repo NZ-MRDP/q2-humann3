@@ -40,8 +40,8 @@ def _single_sample(
     pathway_mapping_path: str,
     bowtie_database_path: str,
     threads: int,
-    memory_use: str,
-    metaphlan_options: MemoryEnum,
+    memory_use: MemoryEnum,
+    metaphlan_options: str,
     output: str,
 ) -> None:
     print(
