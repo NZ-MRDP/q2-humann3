@@ -56,13 +56,10 @@ def _single_sample(
         ),
         # TODO: Do we still need this flag if we're breaking up the
         #       arguments?
-        # "--metaphlan-options",
-        "--stat-q {} --add-viruses --unclassified-estimation".format(
-            metaphlan_stat_q
-        ),
+        "--metaphlan-options",
         # --offline # Don't check for or install databases
-        "--offline --bowtie2db {} --index mpa_vJan21_CHOCOPhlAnSGB_202103".format(
-            bowtie_database_path
+        "--offline --bowtie2db {} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat-q {} --add-viruses --unclassified-estimation".format(
+            bowtie_database_path, metaphlan_stat_q
         ),
     ]
     subprocess.run(cmd, check=True)
