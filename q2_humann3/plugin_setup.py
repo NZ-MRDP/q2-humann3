@@ -61,7 +61,6 @@ plugin.methods.register_function(
     parameters={
         "threads": Int,
         "memory_use": Str % Choices({"minimum", "maximum"}),
-        # "metaphlan_options": Str,
         "metaphlan_stat_q": Float % Range(0, 1, inclusive_end=True),
     },
     outputs=[
@@ -81,7 +80,6 @@ plugin.methods.register_function(
     parameter_descriptions={
         "threads": "number of threads/processes",
         "memory_use": "the amount of memory to use",
-        # "metaphlan_options": "options to be provided to MetaPhlAn software",
         "metaphlan_stat_q": "Quantile value for the robust average",
     },
     output_descriptions={
