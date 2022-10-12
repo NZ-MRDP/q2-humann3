@@ -55,10 +55,10 @@ def _single_sample(
             os.path.join(pathway_database_path, "mapping.gz"),
         ),
         "--metaphlan-options",
-        # --offline # Don't check for or install databases
-        "--offline --bowtie2db {} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat-q {} --add-viruses --unclassified-estimation".format(
-            bowtie_database_path, metaphlan_stat_q
-        ),
+        "'{}'".format(_metaphlan_options(
+            bowtie2db=bowtie_database_path,
+            stat_q=metaphlan_stat_q,
+        )),
     ]
     subprocess.run(cmd, check=True)
 
@@ -99,6 +99,21 @@ def _renorm(table: str, method: str, output: str) -> None:
         "%s" % method,
     ]
     subprocess.run(cmd, check=True)
+
+
+def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
+    """
+    Takes the parameters needed for Metaphlan and combines them
+    into a valid string.
+
+    Parameters
+    ----------
+    bowtie2db : str
+        directory containing the bowtie2 executable
+    stat_q : float
+        Quantile value for the robust average
+    """
+    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat-q {stat_q} --add-viruses --unclassified-estimation"
 
 
 def run(
