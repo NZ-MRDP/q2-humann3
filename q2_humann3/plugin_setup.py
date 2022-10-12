@@ -17,10 +17,10 @@ from q2_humann3._types import (HumannDB, Nucleotide, Pathway, PathwayMapping,
 plugin = qiime2.plugin.Plugin(
     name="humann3",
     version="0.0.0",
-    website="http://huttenhower.sph.harvard.edu/humann2",
+    website="https://huttenhower.sph.harvard.edu/humann/",
     package="q2_humann3",
     user_support_text=(
-        "To get help with HUMAnN2, please post a question to "
+        "To get help with HUMAnN3, please post a question to "
         "the HUMAnN Google Group form: "
         "https://groups.google.com/forum/#!forum/humann-users"
     ),
@@ -70,7 +70,10 @@ plugin.methods.register_function(
         ("taxonomy", FeatureTable[RelativeFrequency]),  # type: ignore
     ],
     input_descriptions={
-        "demultiplexed_seqs": "--- UPDATE ---",
+        "demultiplexed_seqs": ("sequence files that you wish to profile,"
+                               " in fastq (or fastq.gz) format. Multiple"
+                               " sequence files per sample need to first be"
+                               " concatenated into 1 file."),
         "nucleotide_database": "directory containing the nucleotide database",
         "protein_database": "directory containing the protein database",
         "pathway_database": "directory providing a tab-delimited mapping",
@@ -94,8 +97,9 @@ plugin.methods.register_function(
                           " the pathway's component reactions, with each"
                           " reaction's abundance computed as the sum over"
                           " abundances of genes catalyzing the reaction."),
-        "taxonomy": ("--- UPDATE ---"),
+        "taxonomy": ("Taxonomic profile of microbial community of samples,"
+                     " generated using clade-specific marker genes."),
     },
-    name="Characterize samples using HUMAnN2",
-    description="Execute the HUMAnN2",
+    name="Characterize samples using HUMAnN3",
+    description="Execute the HUMAnN3",
 )

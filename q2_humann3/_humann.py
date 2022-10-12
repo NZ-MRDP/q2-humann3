@@ -103,7 +103,7 @@ def _renorm(table: str, method: str, output: str) -> None:
 
 def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
     """
-    Takes the parameters needed for Metaphlan and combines them
+    Takes the parameters needed for MetaPhlAn4 and combines them
     into a valid string.
 
     Parameters
@@ -128,14 +128,14 @@ def run(
     metaphlan_stat_q: float = 0.2,
 ) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
     """
-    Run samples through humann2.
+    Run samples through humann3.
 
     Parameters
     ----------
     samples : SingleLanePerSampleSingleEndFastqDirFmt
         Samples to process
     threads : int, optional
-        The number of threads that humann2 should use
+        The number of threads that humann3 should use
     memory_use : str, optional
         The amount of memory to use, default is minimum
     metaphlan_stat_q : float, optional
@@ -144,8 +144,8 @@ def run(
     Notes
     -----
     This command consumes per-sample FASTQs, and takes those data through
-    "humann2", then through "humann2_join_tables" and finalizes with
-    "humann2_renorm_table".
+    "humann3", then through "humann3_join_tables" and finalizes with
+    "humann3_renorm_table".
 
     Returns
     -------
