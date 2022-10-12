@@ -54,8 +54,6 @@ def _single_sample(
             os.path.join(pathway_mapping_path, "mapping.gz"),
             os.path.join(pathway_database_path, "mapping.gz"),
         ),
-        # TODO: Do we still need this flag if we're breaking up the
-        #       arguments?
         "--metaphlan-options",
         # --offline # Don't check for or install databases
         "--offline --bowtie2db {} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat-q {} --add-viruses --unclassified-estimation".format(
