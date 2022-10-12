@@ -2,7 +2,7 @@ import qiime2.plugin
 from q2_types.feature_table import FeatureTable, Frequency, RelativeFrequency
 from q2_types.per_sample_sequences import SequencesWithQuality
 from q2_types.sample_data import SampleData
-from qiime2.plugin import Choices, Int, SemanticType, Str
+from qiime2.plugin import Choices, Float, Int, Range, SemanticType, Str
 
 import q2_humann3
 from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
@@ -61,7 +61,8 @@ plugin.methods.register_function(
     parameters={
         "threads": Int,
         "memory_use": Str % Choices({"minimum", "maximum"}),
-        "metaphlan_options": Str,
+        # "metaphlan_options": Str,
+        "metaphlan_stat_q": Float % Range(0, 1, inclusive_end=True),
     },
     outputs=[
         ("genefamilies", FeatureTable[Frequency]),  # type: ignore
@@ -80,7 +81,8 @@ plugin.methods.register_function(
     parameter_descriptions={
         "threads": "number of threads/processes",
         "memory_use": "the amount of memory to use",
-        "metaphlan_options": "options to be provided to the MetaPhlAn software",
+        # "metaphlan_options": "options to be provided to MetaPhlAn software",
+        "metaphlan_stat_q": "Quantile value for the robust average",
     },
     output_descriptions={
         "genefamilies": ("This file details the abundance of each gene family"

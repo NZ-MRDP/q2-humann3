@@ -1,7 +1,6 @@
 import os
 import subprocess
 import tempfile
-from enum import Enum
 
 import biom
 # from q2_types.feature_table import FeatureTable, Frequency
@@ -15,22 +14,6 @@ from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
 
 # import typing
 
-class MemoryEnum(str, Enum):
-    """
-    MemoryEnum.
-
-    Enumerator for the memory use.
-
-    Parameters
-    ----------
-    str : string input
-        What is being passed to the enum
-    Enum : Enum
-        Ensures it is a enum
-    """
-    minimum = "minimum"
-    maximum = "maximum"
-
 
 def _single_sample(
     sequence_sample_path: str,
@@ -40,8 +23,8 @@ def _single_sample(
     pathway_mapping_path: str,
     bowtie_database_path: str,
     threads: int,
-    memory_use: MemoryEnum,
-    metaphlan_options: str,
+    memory_use: str,
+    metaphlan_stat_q: float,
     output: str,
 ) -> None:
     print(
@@ -71,8 +54,12 @@ def _single_sample(
             os.path.join(pathway_mapping_path, "mapping.gz"),
             os.path.join(pathway_database_path, "mapping.gz"),
         ),
-        "--metaphlan-options",
-        metaphlan_options,
+        # TODO: Do we still need this flag if we're breaking up the
+        #       arguments?
+        # "--metaphlan-options",
+        "--stat-q {} --add-viruses --unclassified-estimation".format(
+            metaphlan_stat_q
+        ),
         # --offline # Don't check for or install databases
         "--offline --bowtie2db {} --index mpa_vJan21_CHOCOPhlAnSGB_202103".format(
             bowtie_database_path
@@ -126,9 +113,9 @@ def run(
     pathway_database: HumannDBSingleFileDirFormat,
     pathway_mapping: HumannDBSingleFileDirFormat,
     bowtie_database: Bowtie2IndexDirFmt2,
-    metaphlan_options: str,
     threads: int = 1,
-    memory_use: MemoryEnum = "minimum",
+    memory_use: str = "minimum",
+    metaphlan_stat_q: float = 0.2,
 ) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
     """
     Run samples through humann2.
@@ -137,12 +124,12 @@ def run(
     ----------
     samples : SingleLanePerSampleSingleEndFastqDirFmt
         Samples to process
-    threads : int
+    threads : int, optional
         The number of threads that humann2 should use
-    memory_use : MemoryEnum
+    memory_use : str, optional
         The amount of memory to use, default is minimum
-    metaphlan_options : str
-        Metaphlan post-mapping and output arguments (NO dbs/files)
+    metaphlan_stat_q : float, optional
+        Quantile value for the robust average, for Metaphlan, default is 0.2
 
     Notes
     -----
@@ -171,7 +158,7 @@ def run(
                 bowtie_database_path=str(bowtie_database),
                 threads=threads,
                 memory_use=memory_use,
-                metaphlan_options=metaphlan_options,
+                metaphlan_stat_q=metaphlan_stat_q,
                 output=tmp,
             )
 
