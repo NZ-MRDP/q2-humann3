@@ -24,7 +24,7 @@ def _single_sample(
     bowtie_database_path: str,
     threads: int,
     memory_use: str,
-    metaphlan_stat_q: float,
+    metaphlan_options: str,
     output: str,
 ) -> None:
     print(
@@ -55,10 +55,7 @@ def _single_sample(
             os.path.join(pathway_database_path, "mapping.gz"),
         ),
         "--metaphlan-options",
-        "'{}'".format(_metaphlan_options(
-            bowtie2db=bowtie_database_path,
-            stat_q=metaphlan_stat_q,
-        )),
+        metaphlan_options,
     ]
     subprocess.run(cmd, check=True)
 
@@ -159,6 +156,7 @@ def run(
     with tempfile.TemporaryDirectory() as tmp:
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
         for _, view in iter_view:
+            metaphlan_options = _metaphlan_options(str(bowtie_database), metaphlan_stat_q)
             _single_sample(
                 str(view),
                 nucleotide_database_path=str(nucleotide_database),
@@ -168,7 +166,7 @@ def run(
                 bowtie_database_path=str(bowtie_database),
                 threads=threads,
                 memory_use=memory_use,
-                metaphlan_stat_q=metaphlan_stat_q,
+                metaphlan_options=metaphlan_options,
                 output=tmp,
             )
 
