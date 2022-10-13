@@ -12,8 +12,6 @@ from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
 
 # from q2_types.bowtie2 import Bowtie2IndexDirFmt
 
-# import typing
-
 
 def _single_sample(
     sequence_sample_path: str,
