@@ -110,7 +110,7 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
     stat_q : float
         Quantile value for the robust average
     """
-    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat-q {stat_q} --add-viruses --unclassified-estimation"
+    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
 
 
 def run(
