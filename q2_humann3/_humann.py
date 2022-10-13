@@ -21,16 +21,11 @@ def _single_sample(
     protein_database_path: str,
     pathway_database_path: str,
     pathway_mapping_path: str,
-    bowtie_database_path: str,
     threads: int,
     memory_use: str,
     metaphlan_options: str,
     output: str,
 ) -> None:
-    print(
-        "%    %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   "
-    )
-    print(os.listdir(bowtie_database_path))
     cmd = [
         "humann3",
         "-i",
