@@ -3,22 +3,14 @@ import subprocess
 import tempfile
 
 import biom
-
-# from q2_types.bowtie2 import Bowtie2IndexDirFmt
-
 # from q2_types.feature_table import FeatureTable, Frequency
 from q2_types.per_sample_sequences import (
-    FastqGzFormat,
-    SingleLanePerSampleSingleEndFastqDirFmt,
-)
+    FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
 
-from q2_humann3._format import (
-    HumannDbDirFormat,
-    HumannDBSingleFileDirFormat,
-    Bowtie2IndexDirFmt2,
-)
+from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
+                                HumannDBSingleFileDirFormat)
 
-# import typing
+# from q2_types.bowtie2 import Bowtie2IndexDirFmt
 
 
 def _single_sample(
@@ -27,14 +19,11 @@ def _single_sample(
     protein_database_path: str,
     pathway_database_path: str,
     pathway_mapping_path: str,
-    bowtie_database_path: str,
     threads: int,
+    memory_use: str,
+    metaphlan_options: str,
     output: str,
 ) -> None:
-    print(
-        "%    %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   %   "
-    )
-    print(os.listdir(bowtie_database_path))
     cmd = [
         "humann3",
         "-i",
@@ -43,6 +32,8 @@ def _single_sample(
         output,
         "--threads",
         str(threads),
+        "--memory-use",
+        memory_use,
         "--output-format",
         "biom",
         "--remove-column-description-output",
@@ -57,10 +48,7 @@ def _single_sample(
             os.path.join(pathway_database_path, "mapping.gz"),
         ),
         "--metaphlan-options",
-        # --offline # Don't check for or install databases
-        "--offline --bowtie2db {} --index mpa_vJan21_CHOCOPhlAnSGB_202103".format(
-            bowtie_database_path
-        ),
+        metaphlan_options,
     ]
     subprocess.run(cmd, check=True)
 
@@ -103,6 +91,21 @@ def _renorm(table: str, method: str, output: str) -> None:
     subprocess.run(cmd, check=True)
 
 
+def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
+    """
+    Takes the parameters needed for MetaPhlAn4 and combines them
+    into a valid string.
+
+    Parameters
+    ----------
+    bowtie2db : str
+        directory containing the bowtie2 executable
+    stat_q : float
+        Quantile value for the robust average
+    """
+    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
+
+
 def run(
     demultiplexed_seqs: SingleLanePerSampleSingleEndFastqDirFmt,
     nucleotide_database: HumannDbDirFormat,
@@ -111,20 +114,29 @@ def run(
     pathway_mapping: HumannDBSingleFileDirFormat,
     bowtie_database: Bowtie2IndexDirFmt2,
     threads: int = 1,
+    memory_use: str = "minimum",
+    metaphlan_stat_q: float = 0.2,
 ) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
+    """
+    Run samples through humann3.
 
-    """Run samples through humann2
     Parameters
     ----------
     samples : SingleLanePerSampleSingleEndFastqDirFmt
         Samples to process
-    threads : int
-        The number of threads that humann2 should use
+    threads : int, optional
+        The number of threads that humann3 should use
+    memory_use : str, optional
+        The amount of memory to use, default is minimum
+    metaphlan_stat_q : float, optional
+        Quantile value for the robust average, for Metaphlan, default is 0.2
+
     Notes
     -----
     This command consumes per-sample FASTQs, and takes those data through
-    "humann2", then through "humann2_join_tables" and finalizes with
-    "humann2_renorm_table".
+    "humann3", then through "humann3_join_tables" and finalizes with
+    "humann3_renorm_table".
+
     Returns
     -------
     biom.Table
@@ -134,10 +146,10 @@ def run(
     biom.Table
         A pathway abundance table normalized by relative abundance
     """
-
     with tempfile.TemporaryDirectory() as tmp:
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
         for _, view in iter_view:
+            metaphlan_options = _metaphlan_options(str(bowtie_database), metaphlan_stat_q)
             _single_sample(
                 str(view),
                 nucleotide_database_path=str(nucleotide_database),
@@ -146,6 +158,8 @@ def run(
                 pathway_mapping_path=str(pathway_mapping),
                 bowtie_database_path=str(bowtie_database),
                 threads=threads,
+                memory_use=memory_use,
+                metaphlan_options=metaphlan_options,
                 output=tmp,
             )
 
