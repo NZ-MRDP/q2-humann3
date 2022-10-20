@@ -3,20 +3,15 @@ import subprocess
 import tempfile
 
 import biom
+# from q2_types.feature_table import FeatureTable, Frequency
+from q2_types.per_sample_sequences import (
+    FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
+
+from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
+                                HumannDBSingleFileDirFormat)
 
 # from q2_types.bowtie2 import Bowtie2IndexDirFmt
 
-# from q2_types.feature_table import FeatureTable, Frequency
-from q2_types.per_sample_sequences import (
-    FastqGzFormat,
-    SingleLanePerSampleSingleEndFastqDirFmt,
-)
-
-from q2_humann3._format import (
-    HumannDbDirFormat,
-    HumannDBSingleFileDirFormat,
-    Bowtie2IndexDirFmt2,
-)
 
 # import typing
 
@@ -169,3 +164,20 @@ def run(
         final_tables["pathcoverage"],
         final_tables["pathabundance"],
     )
+
+
+def rename_table(
+    demultiplexed_seqs: SingleLanePerSampleSingleEndFastqDirFmt,
+    name: str,
+    simplify: str,
+) -> str: # type: ignore
+    return "Hello"
+
+
+def renorm_table(
+    demultiplexed_seqs: SingleLanePerSampleSingleEndFastqDirFmt,
+    name: str,
+    simplify: str,
+# ) -> (biom.table): # type: ignore
+) -> str: # type: ignore
+    return "Hello"

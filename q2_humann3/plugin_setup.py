@@ -5,13 +5,11 @@ from q2_types.sample_data import SampleData
 from qiime2.plugin import SemanticType
 
 import q2_humann3
-from q2_humann3._format import (
-    HumannDbDirFormat,
-    HumannDbFileFormat,
-    HumannDBSingleFileDirFormat,
-    Bowtie2IndexDirFmt2,
-)
-from q2_humann3._types import HumannDB, Nucleotide, Pathway, PathwayMapping, Protein
+from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
+                                HumannDbFileFormat,
+                                HumannDBSingleFileDirFormat)
+from q2_humann3._types import (HumannDB, Nucleotide, Pathway, PathwayMapping,
+                               Protein)
 
 # from q2_types.bowtie2 import Bowtie2Index
 
@@ -67,6 +65,32 @@ plugin.methods.register_function(
         ("pathcoverage", FeatureTable[RelativeFrequency]),  # type: ignore
         ("pathabundance", FeatureTable[RelativeFrequency]),  # type: ignore
         ("taxonomy", FeatureTable[RelativeFrequency]),  # type: ignore
+    ],
+    description="Execute the HUMAnN2",
+)
+
+plugin.methods.register_function(
+    function=q2_humann3.rename_table,
+    inputs={
+        "demultiplexed_seqs": SampleData[SequencesWithQuality],
+    },
+    parameters={"name": qiime2.plugin.Int, "simplify": qiime2.plugin.Str},
+    name="Characterize samples using HUMAnN2",
+    outputs=[
+        ("genefamilies", FeatureTable[Frequency]),  # type: ignore
+    ],
+    description="Execute the HUMAnN2",
+)
+
+plugin.methods.register_function(
+    function=q2_humann3.renorm_table,
+    inputs={
+        "demultiplexed_seqs": SampleData[SequencesWithQuality],
+    },
+    parameters={"name": qiime2.plugin.Int, "simplify": qiime2.plugin.Str},
+    name="Characterize samples using HUMAnN2",
+    outputs=[
+        ("genefamilies", FeatureTable[Frequency]),  # type: ignore
     ],
     description="Execute the HUMAnN2",
 )
