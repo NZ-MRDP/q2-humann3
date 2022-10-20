@@ -159,6 +159,6 @@ plugin.methods.register_function(
         "simplify": "Remove non-alphanumeric characters from names",
     },
     output_descriptions={
-        "renorm_table": "The modified output table",
+        "rename_table": "The modified output table",
     },
 )
