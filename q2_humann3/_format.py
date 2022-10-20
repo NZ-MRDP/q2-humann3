@@ -1,7 +1,8 @@
-from qiime2.plugin import model
+import itertools
 
-from q2_types.per_sample_sequences import FastqGzFormat
 from q2_types.bowtie2 import Bowtie2IndexFileFormat
+from q2_types.per_sample_sequences import FastqGzFormat
+from qiime2.plugin import model
 
 
 class HumannDbFileFormat(model.BinaryFileFormat):

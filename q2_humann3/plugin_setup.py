@@ -9,10 +9,7 @@ from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
                                 HumannDbFileFormat,
                                 HumannDBSingleFileDirFormat)
 from q2_humann3._types import (HumannDB, Nucleotide, Pathway, PathwayMapping,
-                               Protein)
-
-# from q2_types.bowtie2 import Bowtie2Index
-
+                               Protein, ReferenceNameMapping)
 
 plugin = qiime2.plugin.Plugin(
     name="humann3",
@@ -27,7 +24,9 @@ plugin = qiime2.plugin.Plugin(
     citation_text=None,
 )
 
-plugin.register_semantic_types(HumannDB, Nucleotide, Pathway, Protein)
+plugin.register_semantic_types(
+    HumannDB, Nucleotide, Pathway, Protein, ReferenceNameMapping
+)
 
 plugin.register_formats(
     HumannDbDirFormat,
@@ -46,7 +45,10 @@ plugin.register_semantic_type_to_format(Bowtie2Index2, Bowtie2IndexDirFmt2)
 
 # TODO: Add pathways and investigate what the other "databases" look like
 plugin.register_semantic_type_to_format(
-    HumannDB[PathwayMapping | Pathway], HumannDBSingleFileDirFormat
+    HumannDB[
+        PathwayMapping | Pathway,
+    ],
+    HumannDBSingleFileDirFormat,
 )
 plugin.methods.register_function(
     function=q2_humann3.run,
@@ -115,7 +117,10 @@ plugin.methods.register_function(
 
 plugin.methods.register_function(
     function=q2_humann3.rename_table,
-    inputs={"table": FeatureTable[Frequency | RelativeFrequency]},
+    inputs={
+        "table": FeatureTable[Frequency | RelativeFrequency],
+        "reference_mapping": HumannDB[ReferenceNameMapping],
+    },
     parameters={
         "name": Str  # type: ignore
         % Choices(
@@ -141,10 +146,12 @@ plugin.methods.register_function(
     description="Rename the feature table IDs",
     input_descriptions={
         "table": (
-            (
-                "utility for renormalizing TSV files Each level of a stratified"
-                " table will be normalized using the desired scheme."
-            )
+            "Utility for renormalizing TSV files Each level of a stratified."
+            " Table will be normalized using the desired scheme."
+        ),
+        "reference_mapping": (
+            "Pass an explicit database to use for renaming."
+            " Use if name option is not available."
         ),
     },
     parameter_descriptions={

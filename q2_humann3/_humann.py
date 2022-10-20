@@ -188,6 +188,7 @@ def run(
 def rename_table(
     table: BIOMV210Format,
     name: str,
+    reference_mapping: HumannDBSingleFileDirFormat = None,
     simplify: bool = False,
 ) -> biom.Table:  # type: ignore
     """rename_table.
@@ -221,6 +222,8 @@ def rename_table(
         ]
         if simplify:
             cmd.append("--simplify")
+        if reference_mapping:
+            cmd.extend(["-c", str(reference_mapping)])
 
         subprocess.run(cmd, check=True)
 
