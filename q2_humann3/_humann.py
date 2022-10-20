@@ -3,7 +3,7 @@ import subprocess
 import tempfile
 
 import biom
-# from q2_types.feature_table import FeatureTable, Frequency
+from q2_types.feature_table import BIOMV210Format
 from q2_types.per_sample_sequences import (
     FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
 
@@ -147,7 +147,9 @@ def run(
     with tempfile.TemporaryDirectory() as tmp:
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
         for _, view in iter_view:
-            metaphlan_options = _metaphlan_options(str(bowtie_database), metaphlan_stat_q)
+            metaphlan_options = _metaphlan_options(
+                str(bowtie_database), metaphlan_stat_q
+            )
             _single_sample(
                 str(view),
                 nucleotide_database_path=str(nucleotide_database),
@@ -184,17 +186,42 @@ def run(
 
 
 def rename_table(
-    demultiplexed_seqs: SingleLanePerSampleSingleEndFastqDirFmt,
+    table: BIOMV210Format,
     name: str,
-    simplify: str,
-) -> str: # type: ignore
-    return "Hello"
+    simplify: bool = False,
+) -> biom.Table:  # type: ignore
+    """rename_table.
 
+    Parameters
+    ----------
+    table : BIOMV210Format
+        table
+    name : str
+        name
+    simplify : bool
+        simplify
 
-def renorm_table(
-    demultiplexed_seqs: SingleLanePerSampleSingleEndFastqDirFmt,
-    name: str,
-    simplify: str,
-# ) -> (biom.table): # type: ignore
-) -> str: # type: ignore
-    return "Hello"
+    Returns
+    -------
+    biom.Table
+
+    """
+    table_path = str(table)
+    with tempfile.TemporaryDirectory() as tmp:
+        output_path = os.path.join(tmp, "renorm.biom")
+
+        cmd = [
+            "humann_rename_table",
+            "-i",
+            table_path,
+            "-o",
+            output_path,
+            "-n",
+            name,
+        ]
+        if simplify:
+            cmd.append("--simplify")
+
+        subprocess.run(cmd, check=True)
+
+    return biom.load_table(output_path)

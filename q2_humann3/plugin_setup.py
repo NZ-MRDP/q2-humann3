@@ -2,7 +2,7 @@ import qiime2.plugin
 from q2_types.feature_table import FeatureTable, Frequency, RelativeFrequency
 from q2_types.per_sample_sequences import SequencesWithQuality
 from q2_types.sample_data import SampleData
-from qiime2.plugin import Choices, Float, Int, Range, SemanticType, Str
+from qiime2.plugin import Bool, Choices, Float, Int, Range, SemanticType, Str
 
 import q2_humann3
 from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
@@ -70,10 +70,12 @@ plugin.methods.register_function(
         ("taxonomy", FeatureTable[RelativeFrequency]),  # type: ignore
     ],
     input_descriptions={
-        "demultiplexed_seqs": ("sequence files that you wish to profile,"
-                               " in fastq (or fastq.gz) format. Multiple"
-                               " sequence files per sample need to first be"
-                               " concatenated into 1 file."),
+        "demultiplexed_seqs": (
+            "sequence files that you wish to profile,"
+            " in fastq (or fastq.gz) format. Multiple"
+            " sequence files per sample need to first be"
+            " concatenated into 1 file."
+        ),
         "nucleotide_database": "directory containing the nucleotide database",
         "protein_database": "directory containing the protein database",
         "pathway_database": "directory providing a tab-delimited mapping",
@@ -86,19 +88,26 @@ plugin.methods.register_function(
         "metaphlan_stat_q": "Quantile value for the robust average",
     },
     output_descriptions={
-        "genefamilies": ("This file details the abundance of each gene family"
-                         " in the community."),
-        "pathcoverage": ("Pathway coverage provides an alternative description"
-                         " of the presence (1) and absence (0) of pathways in"
-                         " a community, independent of their quantitative"
-                         " abundance."),
-        "pathabundance": ("This file details the abundance of each pathway in"
-                          " the community as a function of the abundances of"
-                          " the pathway's component reactions, with each"
-                          " reaction's abundance computed as the sum over"
-                          " abundances of genes catalyzing the reaction."),
-        "taxonomy": ("Taxonomic profile of microbial community of samples,"
-                     " generated using clade-specific marker genes."),
+        "genefamilies": (
+            "This file details the abundance of each gene family" " in the community."
+        ),
+        "pathcoverage": (
+            "Pathway coverage provides an alternative description"
+            " of the presence (1) and absence (0) of pathways in"
+            " a community, independent of their quantitative"
+            " abundance."
+        ),
+        "pathabundance": (
+            "This file details the abundance of each pathway in"
+            " the community as a function of the abundances of"
+            " the pathway's component reactions, with each"
+            " reaction's abundance computed as the sum over"
+            " abundances of genes catalyzing the reaction."
+        ),
+        "taxonomy": (
+            "Taxonomic profile of microbial community of samples,"
+            " generated using clade-specific marker genes."
+        ),
     },
     name="Characterize samples using HUMAnN3",
     description="Execute the HUMAnN3",
@@ -106,26 +115,43 @@ plugin.methods.register_function(
 
 plugin.methods.register_function(
     function=q2_humann3.rename_table,
-    inputs={
-        "demultiplexed_seqs": SampleData[SequencesWithQuality],
+    inputs={"table": FeatureTable[Frequency | RelativeFrequency]},
+    parameters={
+        "name": Str  # type: ignore
+        % Choices(
+            {
+                "kegg-orthology",
+                "kegg-pathway",
+                "kegg-module",
+                "ec",
+                "metacyc-rxn",
+                "metacyc-pwy",
+                "pfam",
+                "eggnog",
+                "go",
+                "infogo1000",
+            }
+        ),
+        "simplify": Bool,
     },
-    parameters={"name": qiime2.plugin.Int, "simplify": qiime2.plugin.Str},
-    name="Characterize samples using HUMAnN2",
+    name="Rename Table",
     outputs=[
-        ("genefamilies", FeatureTable[Frequency]),  # type: ignore
+        ("renorm_table", FeatureTable[Frequency | RelativeFrequency]),  # type: ignore
     ],
-    description="Execute the HUMAnN2",
-)
-
-plugin.methods.register_function(
-    function=q2_humann3.renorm_table,
-    inputs={
-        "demultiplexed_seqs": SampleData[SequencesWithQuality],
+    description="Rename the feature table IDs",
+    input_descriptions={
+        "table": (
+            (
+                "utility for renormalizing TSV files Each level of a stratified"
+                " table will be normalized using the desired scheme."
+            )
+        ),
     },
-    parameters={"name": qiime2.plugin.Int, "simplify": qiime2.plugin.Str},
-    name="Characterize samples using HUMAnN2",
-    outputs=[
-        ("genefamilies", FeatureTable[Frequency]),  # type: ignore
-    ],
-    description="Execute the HUMAnN2",
+    parameter_descriptions={
+        "name": "Name of the reference database to use for renaming files",
+        "simplify": "Remove non-alphanumeric characters from names",
+    },
+    output_descriptions={
+        "renorm_table": "The modified output table",
+    },
 )
