@@ -141,7 +141,7 @@ plugin.methods.register_function(
     },
     name="Rename Table",
     outputs=[
-        ("renorm_table", FeatureTable[Frequency | RelativeFrequency]),  # type: ignore
+        ("rename_table", FeatureTable[Frequency | RelativeFrequency]),  # type: ignore
     ],
     description="Rename the feature table IDs",
     input_descriptions={

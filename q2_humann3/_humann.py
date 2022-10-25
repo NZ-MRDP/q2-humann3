@@ -101,6 +101,7 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
     stat_q : float
         Quantile value for the robust average
     """
+    # TODO: The index needs to be set programmatically
     return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
 
 
@@ -156,7 +157,6 @@ def run(
                 protein_database_path=str(protein_database),
                 pathway_database_path=str(pathway_database),
                 pathway_mapping_path=str(pathway_mapping),
-                bowtie_database_path=str(bowtie_database),
                 threads=threads,
                 memory_use=memory_use,
                 metaphlan_options=metaphlan_options,
@@ -222,6 +222,7 @@ def rename_table(
         ]
         if simplify:
             cmd.append("--simplify")
+
         if reference_mapping:
             cmd.extend(["-c", str(reference_mapping)])
 
