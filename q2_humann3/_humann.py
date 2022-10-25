@@ -3,14 +3,12 @@ import subprocess
 import tempfile
 
 import biom
-# from q2_types.feature_table import FeatureTable, Frequency
+from q2_types.feature_table import BIOMV210Format
 from q2_types.per_sample_sequences import (
     FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
 
 from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
                                 HumannDBSingleFileDirFormat)
-
-# from q2_types.bowtie2 import Bowtie2IndexDirFmt
 
 
 def _single_sample(
@@ -103,6 +101,7 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
     stat_q : float
         Quantile value for the robust average
     """
+    # TODO: The index needs to be set programmatically
     return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
 
 
@@ -149,14 +148,15 @@ def run(
     with tempfile.TemporaryDirectory() as tmp:
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
         for _, view in iter_view:
-            metaphlan_options = _metaphlan_options(str(bowtie_database), metaphlan_stat_q)
+            metaphlan_options = _metaphlan_options(
+                str(bowtie_database), metaphlan_stat_q
+            )
             _single_sample(
                 str(view),
                 nucleotide_database_path=str(nucleotide_database),
                 protein_database_path=str(protein_database),
                 pathway_database_path=str(pathway_database),
                 pathway_mapping_path=str(pathway_mapping),
-                bowtie_database_path=str(bowtie_database),
                 threads=threads,
                 memory_use=memory_use,
                 metaphlan_options=metaphlan_options,
@@ -183,3 +183,49 @@ def run(
         final_tables["pathcoverage"],
         final_tables["pathabundance"],
     )
+
+
+def rename_table(
+    table: BIOMV210Format,
+    name: str,
+    reference_mapping: HumannDBSingleFileDirFormat = None,
+    simplify: bool = False,
+) -> biom.Table:  # type: ignore
+    """rename_table.
+
+    Parameters
+    ----------
+    table : BIOMV210Format
+        table
+    name : str
+        name
+    simplify : bool
+        simplify
+
+    Returns
+    -------
+    biom.Table
+
+    """
+    table_path = str(table)
+    with tempfile.TemporaryDirectory() as tmp:
+        output_path = os.path.join(tmp, "renorm.biom")
+
+        cmd = [
+            "humann_rename_table",
+            "-i",
+            table_path,
+            "-o",
+            output_path,
+            "-n",
+            name,
+        ]
+        if simplify:
+            cmd.append("--simplify")
+
+        if reference_mapping:
+            cmd.extend(["-c", str(reference_mapping)])
+
+        subprocess.run(cmd, check=True)
+
+    return biom.load_table(output_path)

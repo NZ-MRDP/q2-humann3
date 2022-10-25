@@ -2,17 +2,14 @@ import qiime2.plugin
 from q2_types.feature_table import FeatureTable, Frequency, RelativeFrequency
 from q2_types.per_sample_sequences import SequencesWithQuality
 from q2_types.sample_data import SampleData
-from qiime2.plugin import Choices, Float, Int, Range, SemanticType, Str
+from qiime2.plugin import Bool, Choices, Float, Int, Range, SemanticType, Str
 
 import q2_humann3
 from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
                                 HumannDbFileFormat,
                                 HumannDBSingleFileDirFormat)
 from q2_humann3._types import (HumannDB, Nucleotide, Pathway, PathwayMapping,
-                               Protein)
-
-# from q2_types.bowtie2 import Bowtie2Index
-
+                               Protein, ReferenceNameMapping)
 
 plugin = qiime2.plugin.Plugin(
     name="humann3",
@@ -27,7 +24,9 @@ plugin = qiime2.plugin.Plugin(
     citation_text=None,
 )
 
-plugin.register_semantic_types(HumannDB, Nucleotide, Pathway, Protein)
+plugin.register_semantic_types(
+    HumannDB, Nucleotide, Pathway, Protein, ReferenceNameMapping
+)
 
 plugin.register_formats(
     HumannDbDirFormat,
@@ -46,7 +45,10 @@ plugin.register_semantic_type_to_format(Bowtie2Index2, Bowtie2IndexDirFmt2)
 
 # TODO: Add pathways and investigate what the other "databases" look like
 plugin.register_semantic_type_to_format(
-    HumannDB[PathwayMapping | Pathway], HumannDBSingleFileDirFormat
+    HumannDB[
+        PathwayMapping | Pathway,
+    ],
+    HumannDBSingleFileDirFormat,
 )
 plugin.methods.register_function(
     function=q2_humann3.run,
@@ -70,10 +72,12 @@ plugin.methods.register_function(
         ("taxonomy", FeatureTable[RelativeFrequency]),  # type: ignore
     ],
     input_descriptions={
-        "demultiplexed_seqs": ("sequence files that you wish to profile,"
-                               " in fastq (or fastq.gz) format. Multiple"
-                               " sequence files per sample need to first be"
-                               " concatenated into 1 file."),
+        "demultiplexed_seqs": (
+            "sequence files that you wish to profile,"
+            " in fastq (or fastq.gz) format. Multiple"
+            " sequence files per sample need to first be"
+            " concatenated into 1 file."
+        ),
         "nucleotide_database": "directory containing the nucleotide database",
         "protein_database": "directory containing the protein database",
         "pathway_database": "directory providing a tab-delimited mapping",
@@ -86,20 +90,75 @@ plugin.methods.register_function(
         "metaphlan_stat_q": "Quantile value for the robust average",
     },
     output_descriptions={
-        "genefamilies": ("This file details the abundance of each gene family"
-                         " in the community."),
-        "pathcoverage": ("Pathway coverage provides an alternative description"
-                         " of the presence (1) and absence (0) of pathways in"
-                         " a community, independent of their quantitative"
-                         " abundance."),
-        "pathabundance": ("This file details the abundance of each pathway in"
-                          " the community as a function of the abundances of"
-                          " the pathway's component reactions, with each"
-                          " reaction's abundance computed as the sum over"
-                          " abundances of genes catalyzing the reaction."),
-        "taxonomy": ("Taxonomic profile of microbial community of samples,"
-                     " generated using clade-specific marker genes."),
+        "genefamilies": (
+            "This file details the abundance of each gene family" " in the community."
+        ),
+        "pathcoverage": (
+            "Pathway coverage provides an alternative description"
+            " of the presence (1) and absence (0) of pathways in"
+            " a community, independent of their quantitative"
+            " abundance."
+        ),
+        "pathabundance": (
+            "This file details the abundance of each pathway in"
+            " the community as a function of the abundances of"
+            " the pathway's component reactions, with each"
+            " reaction's abundance computed as the sum over"
+            " abundances of genes catalyzing the reaction."
+        ),
+        "taxonomy": (
+            "Taxonomic profile of microbial community of samples,"
+            " generated using clade-specific marker genes."
+        ),
     },
     name="Characterize samples using HUMAnN3",
     description="Execute the HUMAnN3",
+)
+
+plugin.methods.register_function(
+    function=q2_humann3.rename_table,
+    inputs={
+        "table": FeatureTable[Frequency | RelativeFrequency],
+        "reference_mapping": HumannDB[ReferenceNameMapping],
+    },
+    parameters={
+        "name": Str  # type: ignore
+        % Choices(
+            {
+                "kegg-orthology",
+                "kegg-pathway",
+                "kegg-module",
+                "ec",
+                "metacyc-rxn",
+                "metacyc-pwy",
+                "pfam",
+                "eggnog",
+                "go",
+                "infogo1000",
+            }
+        ),
+        "simplify": Bool,
+    },
+    name="Rename Table",
+    outputs=[
+        ("rename_table", FeatureTable[Frequency | RelativeFrequency]),  # type: ignore
+    ],
+    description="Rename the feature table IDs",
+    input_descriptions={
+        "table": (
+            "Utility for renormalizing TSV files Each level of a stratified."
+            " Table will be normalized using the desired scheme."
+        ),
+        "reference_mapping": (
+            "Pass an explicit database to use for renaming."
+            " Use if name option is not available."
+        ),
+    },
+    parameter_descriptions={
+        "name": "Name of the reference database to use for renaming files",
+        "simplify": "Remove non-alphanumeric characters from names",
+    },
+    output_descriptions={
+        "rename_table": "The modified output table",
+    },
 )
