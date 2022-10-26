@@ -187,7 +187,7 @@ def run(
 
 def rename_table(
     table: BIOMV210Format,
-    name: str,
+    name: str = None,
     reference_mapping: HumannDBSingleFileDirFormat = None,
     simplify: bool = False,
 ) -> biom.Table:  # type: ignore
