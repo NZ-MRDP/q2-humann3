@@ -46,7 +46,7 @@ plugin.register_semantic_type_to_format(Bowtie2Index2, Bowtie2IndexDirFmt2)
 # TODO: Add pathways and investigate what the other "databases" look like
 plugin.register_semantic_type_to_format(
     HumannDB[
-        PathwayMapping | Pathway,
+        PathwayMapping | Pathway | ReferenceNameMapping,
     ],
     HumannDBSingleFileDirFormat,
 )
@@ -122,7 +122,8 @@ plugin.methods.register_function(
         "reference_mapping": HumannDB[ReferenceNameMapping],
     },
     parameters={
-        "name": Str  # type: ignore
+        "name": Int % None
+        | Str  # type: ignore
         % Choices(
             {
                 "kegg-orthology",
