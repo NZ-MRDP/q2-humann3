@@ -115,7 +115,7 @@ def run(
     threads: int = 1,
     memory_use: str = "minimum",
     metaphlan_stat_q: float = 0.2,
-) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
+) -> (biom.Table, biom.Table, biom.Table):  # type:  ignore
     """
     Run samples through humann3.
 
