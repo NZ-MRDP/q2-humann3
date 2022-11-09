@@ -102,7 +102,7 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
         Quantile value for the robust average
     """
     # TODO: The index needs to be set programmatically
-    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
+    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation --biom $1.taxonomy.biom"
 
 
 def run(
@@ -115,7 +115,7 @@ def run(
     threads: int = 1,
     memory_use: str = "minimum",
     metaphlan_stat_q: float = 0.2,
-) -> (biom.Table, biom.Table, biom.Table):  # type:  ignore
+) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
     """
     Run samples through humann3.
 
@@ -168,12 +168,15 @@ def run(
             ("genefamilies", "cpm"),
             ("pathcoverage", "relab"),
             ("pathabundance", "relab"),
+            ("taxonomy", "relab"),
         ]:
 
+            # /tmp/taxonomy.biom
+            # /tmp/pathabundance.biom
             joined_path = os.path.join(tmp, "%s.biom" % name)
             result_path = os.path.join(tmp, "%s.%s.biom" % (name, method))
 
-            _join_tables(tmp, joined_path, name)
+            _join_tables(table=tmp, output=joined_path, name=name)
             _renorm(joined_path, method, result_path)
 
             final_tables[name] = biom.load_table(result_path)
@@ -182,6 +185,7 @@ def run(
         final_tables["genefamilies"],
         final_tables["pathcoverage"],
         final_tables["pathabundance"],
+        final_tables["taxonomy"],
     )
 
 

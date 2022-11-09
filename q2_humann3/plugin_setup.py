@@ -69,6 +69,7 @@ plugin.methods.register_function(
         ("genefamilies", FeatureTable[Frequency]),  # type: ignore
         ("pathcoverage", FeatureTable[RelativeFrequency]),  # type: ignore
         ("pathabundance", FeatureTable[RelativeFrequency]),  # type: ignore
+        ("taxonomy", FeatureTable[RelativeFrequency]),  # type: ignore
     ],
     input_descriptions={
         "demultiplexed_seqs": (
@@ -104,6 +105,10 @@ plugin.methods.register_function(
             " the pathway's component reactions, with each"
             " reaction's abundance computed as the sum over"
             " abundances of genes catalyzing the reaction."
+        ),
+        "taxonomy": (
+            "Taxonomic profile of microbial community of samples,"
+            " generated using clade-specific marker genes."
         ),
     },
     name="Characterize samples using HUMAnN3",
