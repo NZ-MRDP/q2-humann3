@@ -89,7 +89,7 @@ def _renorm(table: str, method: str, output: str) -> None:
     subprocess.run(cmd, check=True)
 
 
-def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
+def _metaphlan_options(bowtie2db: str, stat_q: float, file_name: str) -> str:
     """
     Takes the parameters needed for MetaPhlAn4 and combines them
     into a valid string.
@@ -102,7 +102,8 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
         Quantile value for the robust average
     """
     # TODO: The index needs to be set programmatically
-    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation --biom $1.taxonomy.biom"
+    output_file_name = os.path.join(file_name, "taxonomy.biom")
+    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation --biom {output_file_name}"
 
 
 def run(
@@ -148,8 +149,10 @@ def run(
     with tempfile.TemporaryDirectory() as tmp:
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
         for _, view in iter_view:
+            taxonomy_file_name = os.path.splitext(view)[0]
+
             metaphlan_options = _metaphlan_options(
-                str(bowtie_database), metaphlan_stat_q
+                str(bowtie_database), metaphlan_stat_q, taxonomy_file_name
             )
             _single_sample(
                 str(view),
