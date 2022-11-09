@@ -5,10 +5,15 @@ import tempfile
 import biom
 from q2_types.feature_table import BIOMV210Format
 from q2_types.per_sample_sequences import (
-    FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
+    FastqGzFormat,
+    SingleLanePerSampleSingleEndFastqDirFmt,
+)
 
-from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
-                                HumannDBSingleFileDirFormat)
+from q2_humann3._format import (
+    Bowtie2IndexDirFmt2,
+    HumannDbDirFormat,
+    HumannDBSingleFileDirFormat,
+)
 
 
 def _single_sample(
@@ -149,7 +154,7 @@ def run(
     with tempfile.TemporaryDirectory() as tmp:
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
         for _, view in iter_view:
-            taxonomy_file_name = os.path.splitext(view)[0]
+            taxonomy_file_name = os.path.splitext(str(view))[0]
 
             metaphlan_options = _metaphlan_options(
                 str(bowtie_database), metaphlan_stat_q, taxonomy_file_name
