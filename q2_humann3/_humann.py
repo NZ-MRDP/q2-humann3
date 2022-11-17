@@ -57,24 +57,10 @@ def _join_taxa_tables(input_dir_path: str, output_path: str):
     # I was not able to get custom output names to work from metaphlan
     # so we're looking for the default names
     taxa_tables = glob(f"{input_dir_path}/**/*metaphlan_bugs*", recursive=True)
-    output_tax_table_tsv = os.path.join(input_dir_path, "taxa_table.tsv")
     cmd = ["merge_metaphlan_tables.py"] + taxa_tables
-    with open(output_tax_table_tsv, "w") as outfile:
+    with open(output_path, "w") as outfile:
         subprocess.run(cmd, stdout=outfile)
         subprocess.run(cmd, check=True)
-
-    cmd = [
-        "biom",
-        "convert",
-        "-i",
-        output_tax_table_tsv,
-        "-o",
-        output_path,
-        "--to-hdf5",
-    ]
-    subprocess.run(cmd, check=True)
-
-    return output_path
 
 
 def _join_tables(table: str, output: str, name: str) -> None:
@@ -90,8 +76,6 @@ def _join_tables(table: str, output: str, name: str) -> None:
         "%s" % name,
     ]
 
-    if name == "taxonomy":
-        cmd.append("-s")
     subprocess.run(cmd, check=True)
 
     # doing convert manually as we need to filter out the leading comment as
@@ -118,7 +102,7 @@ def _renorm(table: str, method: str, output: str) -> None:
     subprocess.run(cmd, check=True)
 
 
-def _metaphlan_options(bowtie2db: str, stat_q: float, file_name: str) -> str:
+def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
     """
     Takes the parameters needed for MetaPhlAn4 and combines them
     into a valid string.
@@ -132,7 +116,6 @@ def _metaphlan_options(bowtie2db: str, stat_q: float, file_name: str) -> str:
     """
     # TODO: The index needs to be set programmatically
     return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
-    # return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation --biom {file_name}"
 
 
 def run(
@@ -176,13 +159,11 @@ def run(
         A pathway abundance table normalized by relative abundance
     """
     with tempfile.TemporaryDirectory() as tmp:
-        ids = demultiplexed_seqs.manifest.view(pd.DataFrame).index
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
-        for id_, (_, view) in zip(ids, iter_view):
+        for _, view in iter_view:
             metaphlan_options = _metaphlan_options(
                 str(bowtie_database),
                 metaphlan_stat_q,
-                os.path.join(tmp, f"{id_}_taxonomy.biom"),
             )
             _single_sample(
                 str(view),
