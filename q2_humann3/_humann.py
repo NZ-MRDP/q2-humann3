@@ -1,8 +1,10 @@
 import os
 import subprocess
 import tempfile
+from glob import glob
 
 import biom
+import pandas as pd
 from q2_types.feature_table import BIOMV210Format
 from q2_types.per_sample_sequences import (
     FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
@@ -51,6 +53,16 @@ def _single_sample(
     subprocess.run(cmd, check=True)
 
 
+def _join_taxa_tables(input_dir_path: str, output_path: str):
+    # I was not able to get custom output names to work from metaphlan
+    # so we're looking for the default names
+    taxa_tables = glob(f"{input_dir_path}/**/*metaphlan_bugs*", recursive=True)
+    cmd = ["merge_metaphlan_tables.py"] + taxa_tables
+    with open(output_path, "w") as outfile:
+        subprocess.run(cmd, stdout=outfile)
+        subprocess.run(cmd, check=True)
+
+
 def _join_tables(table: str, output: str, name: str) -> None:
     """Merge multiple sample output into single tables"""
     tmp_output = output + "-actual"
@@ -63,6 +75,7 @@ def _join_tables(table: str, output: str, name: str) -> None:
         "--file_name",
         "%s" % name,
     ]
+
     subprocess.run(cmd, check=True)
 
     # doing convert manually as we need to filter out the leading comment as
@@ -115,7 +128,7 @@ def run(
     threads: int = 1,
     memory_use: str = "minimum",
     metaphlan_stat_q: float = 0.2,
-) -> (biom.Table, biom.Table, biom.Table):  # type:  ignore
+) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
     """
     Run samples through humann3.
 
@@ -149,7 +162,8 @@ def run(
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
         for _, view in iter_view:
             metaphlan_options = _metaphlan_options(
-                str(bowtie_database), metaphlan_stat_q
+                str(bowtie_database),
+                metaphlan_stat_q,
             )
             _single_sample(
                 str(view),
@@ -168,13 +182,16 @@ def run(
             ("genefamilies", "cpm"),
             ("pathcoverage", "relab"),
             ("pathabundance", "relab"),
+            ("taxonomy", "relab"),
         ]:
-
             joined_path = os.path.join(tmp, "%s.biom" % name)
             result_path = os.path.join(tmp, "%s.%s.biom" % (name, method))
 
-            _join_tables(tmp, joined_path, name)
-            _renorm(joined_path, method, result_path)
+            if name == "taxonomy":
+                _join_taxa_tables(input_dir_path=tmp, output_path=result_path)
+            else:
+                _join_tables(table=tmp, output=joined_path, name=name)
+                _renorm(joined_path, method, result_path)
 
             final_tables[name] = biom.load_table(result_path)
 
@@ -182,6 +199,7 @@ def run(
         final_tables["genefamilies"],
         final_tables["pathcoverage"],
         final_tables["pathabundance"],
+        final_tables["taxonomy"],
     )
 
 
