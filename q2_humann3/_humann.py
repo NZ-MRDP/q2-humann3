@@ -303,4 +303,4 @@ def _rename_table(
 
         subprocess.run(cmd, check=True)
 
-    return biom.load_table(output_path)
+        return biom.load_table(output_path)
