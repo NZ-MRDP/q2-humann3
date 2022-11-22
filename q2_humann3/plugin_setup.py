@@ -115,13 +115,8 @@ plugin.methods.register_function(
     description="Execute the HUMAnN3",
 )
 
-plugin.methods.register_function(
-    function=q2_humann3.rename_table,
-    inputs={
-        "table": FeatureTable[Frequency | RelativeFrequency],
-        "reference_mapping": HumannDB[ReferenceNameMapping],
-    },
-    parameters={
+_rename_params = {
+    "parameters": {
         "name": Int % None
         | Str  # type: ignore
         % Choices(
@@ -140,12 +135,8 @@ plugin.methods.register_function(
         ),
         "simplify": Bool,
     },
-    name="Rename Table",
-    outputs=[
-        ("rename_table", FeatureTable[Frequency | RelativeFrequency]),  # type: ignore
-    ],
-    description="Rename the feature table IDs",
-    input_descriptions={
+    "description": "Rename the feature table IDs",
+    "input_descriptions": {
         "table": (
             "Utility for renormalizing TSV files Each level of a stratified."
             " Table will be normalized using the desired scheme."
@@ -155,11 +146,40 @@ plugin.methods.register_function(
             " Use if name option is not available."
         ),
     },
-    parameter_descriptions={
+    "parameter_descriptions": {
         "name": "Name of the reference database to use for renaming files",
         "simplify": "Remove non-alphanumeric characters from names",
     },
-    output_descriptions={
+    "output_descriptions": {
         "rename_table": "The modified output table",
     },
+}
+
+# qiime only allows one type output per function
+# Because pathways and gene families have different types
+# we have to a a function for each
+plugin.methods.register_function(
+    function=q2_humann3.rename_pathways,
+    inputs={
+        "table": FeatureTable[RelativeFrequency],
+        "reference_mapping": HumannDB[ReferenceNameMapping],
+    },
+    name="Rename Pathways Table",
+    outputs=[
+        ("rename_table", FeatureTable[RelativeFrequency]),  # type: ignore
+    ],
+    **_rename_params
+)
+
+plugin.methods.register_function(
+    function=q2_humann3.rename_gene_families,
+    inputs={
+        "table": FeatureTable[RelativeFrequency],
+        "reference_mapping": HumannDB[ReferenceNameMapping],
+    },
+    name="Rename Pathways Table",
+    outputs=[
+        ("rename_table", FeatureTable[RelativeFrequency]),  # type: ignore
+    ],
+    **_rename_params
 )

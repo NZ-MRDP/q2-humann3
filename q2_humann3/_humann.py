@@ -203,7 +203,64 @@ def run(
     )
 
 
-def rename_table(
+def rename_pathways(
+    table: BIOMV210Format,
+    name: str = None,
+    reference_mapping: HumannDBSingleFileDirFormat = None,
+    simplify: bool = False,
+) -> biom.Table:  # type: ignore
+    """rename_pathways.
+
+    Parameters
+    ----------
+    table : BIOMV210Format
+        table
+    name : str
+        name
+    reference_mapping : HumannDBSingleFileDirFormat
+        reference_mapping
+    simplify : bool
+        simplify
+
+    Returns
+    -------
+    biom.Table
+
+    """
+    return _rename_table(table, name, reference_mapping, simplify)
+
+
+def rename_gene_families(
+    table: BIOMV210Format,
+    name: str = None,
+    reference_mapping: HumannDBSingleFileDirFormat = None,
+    simplify: bool = False,
+) -> biom.Table:  # type: ignore
+    """rename_pathways.
+
+    Parameters
+    ----------
+    table : BIOMV210Format
+        table
+    name : str
+        name
+    reference_mapping : HumannDBSingleFileDirFormat
+        reference_mapping
+    simplify : bool
+        simplify
+
+    Returns
+    -------
+    biom.Table
+
+    """
+    return _rename_table(table, name, reference_mapping, simplify)
+
+
+# def rename_pathways()
+
+
+def _rename_table(
     table: BIOMV210Format,
     name: str = None,
     reference_mapping: HumannDBSingleFileDirFormat = None,
