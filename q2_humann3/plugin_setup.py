@@ -7,7 +7,8 @@ from qiime2.plugin import Bool, Choices, Float, Int, Range, SemanticType, Str
 import q2_humann3
 from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
                                 HumannDbFileFormat,
-                                HumannDBSingleFileDirFormat)
+                                HumannDBSingleFileDirFormat,
+                                HumannDBSingleReferenceFileDirFormat)
 from q2_humann3._types import (HumannDB, Nucleotide, Pathway, PathwayMapping,
                                Protein, ReferenceNameMapping)
 
@@ -33,6 +34,7 @@ plugin.register_formats(
     HumannDbFileFormat,
     HumannDBSingleFileDirFormat,
     Bowtie2IndexDirFmt2,
+    HumannDBSingleReferenceFileDirFormat,
 )
 
 plugin.register_semantic_type_to_format(
@@ -46,10 +48,16 @@ plugin.register_semantic_type_to_format(Bowtie2Index2, Bowtie2IndexDirFmt2)
 # TODO: Add pathways and investigate what the other "databases" look like
 plugin.register_semantic_type_to_format(
     HumannDB[
-        PathwayMapping | Pathway | ReferenceNameMapping,
+        PathwayMapping | Pathway,
     ],
     HumannDBSingleFileDirFormat,
 )
+
+plugin.register_semantic_type_to_format(
+    HumannDB[ReferenceNameMapping],
+    HumannDBSingleReferenceFileDirFormat,
+)
+
 plugin.methods.register_function(
     function=q2_humann3.run,
     inputs={
