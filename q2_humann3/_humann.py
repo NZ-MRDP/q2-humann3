@@ -10,7 +10,8 @@ from q2_types.per_sample_sequences import (
     FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
 
 from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
-                                HumannDBSingleFileDirFormat)
+                                HumannDBSingleFileDirFormat,
+                                HumannDBSingleReferenceFileDirFormat)
 
 
 def _single_sample(
@@ -203,10 +204,67 @@ def run(
     )
 
 
-def rename_table(
+def rename_pathways(
     table: BIOMV210Format,
     name: str = None,
-    reference_mapping: HumannDBSingleFileDirFormat = None,
+    reference_mapping: HumannDBSingleReferenceFileDirFormat = None,
+    simplify: bool = False,
+) -> biom.Table:  # type: ignore
+    """rename_pathways.
+
+    Parameters
+    ----------
+    table : BIOMV210Format
+        table
+    name : str
+        name
+    reference_mapping : HumannDBSingleFileDirFormat
+        reference_mapping
+    simplify : bool
+        simplify
+
+    Returns
+    -------
+    biom.Table
+
+    """
+    return _rename_table(table, name, reference_mapping, simplify)
+
+
+def rename_gene_families(
+    table: BIOMV210Format,
+    name: str = None,
+    reference_mapping: HumannDBSingleReferenceFileDirFormat = None,
+    simplify: bool = False,
+) -> biom.Table:  # type: ignore
+    """rename_pathways.
+
+    Parameters
+    ----------
+    table : BIOMV210Format
+        table
+    name : str
+        name
+    reference_mapping : HumannDBSingleFileDirFormat
+        reference_mapping
+    simplify : bool
+        simplify
+
+    Returns
+    -------
+    biom.Table
+
+    """
+    return _rename_table(table, name, reference_mapping, simplify)
+
+
+# def rename_pathways()
+
+
+def _rename_table(
+    table: BIOMV210Format,
+    name: str = None,
+    reference_mapping: HumannDBSingleReferenceFileDirFormat = None,
     simplify: bool = False,
 ) -> biom.Table:  # type: ignore
     """rename_table.
@@ -235,15 +293,18 @@ def rename_table(
             table_path,
             "-o",
             output_path,
-            "-n",
-            name,
         ]
         if simplify:
             cmd.append("--simplify")
 
+        if name:
+            cmd.extend(["n", name])
+
         if reference_mapping:
-            cmd.extend(["-c", str(reference_mapping)])
+            cmd.extend(
+                ["-c", os.path.join(str(reference_mapping), "reference.txt.bz2")]
+            )
 
         subprocess.run(cmd, check=True)
 
-    return biom.load_table(output_path)
+        return biom.load_table(output_path)

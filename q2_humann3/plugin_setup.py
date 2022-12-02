@@ -7,7 +7,8 @@ from qiime2.plugin import Bool, Choices, Float, Int, Range, SemanticType, Str
 import q2_humann3
 from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
                                 HumannDbFileFormat,
-                                HumannDBSingleFileDirFormat)
+                                HumannDBSingleFileDirFormat,
+                                HumannDBSingleReferenceFileDirFormat)
 from q2_humann3._types import (HumannDB, Nucleotide, Pathway, PathwayMapping,
                                Protein, ReferenceNameMapping)
 
@@ -33,6 +34,7 @@ plugin.register_formats(
     HumannDbFileFormat,
     HumannDBSingleFileDirFormat,
     Bowtie2IndexDirFmt2,
+    HumannDBSingleReferenceFileDirFormat,
 )
 
 plugin.register_semantic_type_to_format(
@@ -46,10 +48,16 @@ plugin.register_semantic_type_to_format(Bowtie2Index2, Bowtie2IndexDirFmt2)
 # TODO: Add pathways and investigate what the other "databases" look like
 plugin.register_semantic_type_to_format(
     HumannDB[
-        PathwayMapping | Pathway | ReferenceNameMapping,
+        PathwayMapping | Pathway,
     ],
     HumannDBSingleFileDirFormat,
 )
+
+plugin.register_semantic_type_to_format(
+    HumannDB[ReferenceNameMapping],
+    HumannDBSingleReferenceFileDirFormat,
+)
+
 plugin.methods.register_function(
     function=q2_humann3.run,
     inputs={
@@ -115,13 +123,8 @@ plugin.methods.register_function(
     description="Execute the HUMAnN3",
 )
 
-plugin.methods.register_function(
-    function=q2_humann3.rename_table,
-    inputs={
-        "table": FeatureTable[Frequency | RelativeFrequency],
-        "reference_mapping": HumannDB[ReferenceNameMapping],
-    },
-    parameters={
+_rename_params = {
+    "parameters": {
         "name": Int % None
         | Str  # type: ignore
         % Choices(
@@ -140,12 +143,8 @@ plugin.methods.register_function(
         ),
         "simplify": Bool,
     },
-    name="Rename Table",
-    outputs=[
-        ("rename_table", FeatureTable[Frequency | RelativeFrequency]),  # type: ignore
-    ],
-    description="Rename the feature table IDs",
-    input_descriptions={
+    "description": "Rename the feature table IDs",
+    "input_descriptions": {
         "table": (
             "Utility for renormalizing TSV files Each level of a stratified."
             " Table will be normalized using the desired scheme."
@@ -155,11 +154,40 @@ plugin.methods.register_function(
             " Use if name option is not available."
         ),
     },
-    parameter_descriptions={
+    "parameter_descriptions": {
         "name": "Name of the reference database to use for renaming files",
         "simplify": "Remove non-alphanumeric characters from names",
     },
-    output_descriptions={
+    "output_descriptions": {
         "rename_table": "The modified output table",
     },
+}
+
+# qiime only allows one type output per function
+# Because pathways and gene families have different types
+# we have to a a function for each
+plugin.methods.register_function(
+    function=q2_humann3.rename_pathways,
+    inputs={
+        "table": FeatureTable[RelativeFrequency],
+        "reference_mapping": HumannDB[ReferenceNameMapping],
+    },
+    name="Rename Pathways Table",
+    outputs=[
+        ("rename_table", FeatureTable[RelativeFrequency]),  # type: ignore
+    ],
+    **_rename_params
+)
+
+plugin.methods.register_function(
+    function=q2_humann3.rename_gene_families,
+    inputs={
+        "table": FeatureTable[RelativeFrequency],
+        "reference_mapping": HumannDB[ReferenceNameMapping],
+    },
+    name="Rename Pathways Table",
+    outputs=[
+        ("rename_table", FeatureTable[RelativeFrequency]),  # type: ignore
+    ],
+    **_rename_params
 )

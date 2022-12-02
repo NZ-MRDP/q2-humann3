@@ -23,6 +23,10 @@ HumannDBSingleFileDirFormat = model.SingleFileDirectoryFormat(
     "HumannDBSingleFileDirFormat", "mapping.gz", HumannDbFileFormat
 )
 
+HumannDBSingleReferenceFileDirFormat = model.SingleFileDirectoryFormat(
+    "HumannDBSingleReferenceFileDirFormat", "reference.txt.bz2", HumannDbFileFormat
+)
+
 # TODO: make this generic for single file humann3
 
 
