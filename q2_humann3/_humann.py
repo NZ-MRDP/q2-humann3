@@ -4,7 +4,6 @@ import tempfile
 from glob import glob
 
 import biom
-import pandas as pd
 from q2_types.feature_table import BIOMV210Format
 from q2_types.per_sample_sequences import (
     FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
@@ -65,7 +64,7 @@ def _join_taxa_tables(input_dir_path: str, output_path: str):
 
 
 def _join_tables(table: str, output: str, name: str) -> None:
-    """Merge multiple sample output into single tables"""
+    """Merge multiple sample output into single tables."""
     tmp_output = output + "-actual"
     cmd = [
         "humann_join_tables",
@@ -89,24 +88,68 @@ def _join_tables(table: str, output: str, name: str) -> None:
         fp.write("\n")
 
 
-def _renorm(table: str, method: str, output: str) -> None:
+def cpm(humann3_table: BIOMV210Format, mode: str = "community") -> biom.Table:
+    """cpm.
+
+    Parameters
+    ----------
+    humann3_table : BIOMV210Format
+        humann3_table
+    mode : str
+        mode
+
+    Returns
+    -------
+    biom.Table
+
+    """
+
+    return _renorm(humann3_table, "cpm", mode)
+
+
+def relab(humann3_table: BIOMV210Format, mode: str = "community") -> biom.Table:
+    """relab.
+
+    Parameters
+    ----------
+    humann3_table : BIOMV210Format
+        humann3_table
+    mode : str
+        mode
+
+    Returns
+    -------
+    biom.Table
+
+    """
+
+    return _renorm(humann3_table, "relab", mode)
+
+
+def _renorm(table: BIOMV210Format, method: str, mode: str) -> biom.Table:
     """Renormalize a table"""
-    cmd = [
-        "humann_renorm_table",
-        "-i",
-        "%s" % table,
-        "-o",
-        "%s" % output,
-        "-u",
-        "%s" % method,
-    ]
-    subprocess.run(cmd, check=True)
+
+    table_path = str(table)
+    with tempfile.TemporaryDirectory() as tmp:
+        output_path = os.path.join(tmp, "cpm.biom")
+
+        cmd = [
+            "humann_renorm_table",
+            "-i",
+            table_path,
+            "-o",
+            output_path,
+            "-u",
+            method,
+            "-m",
+            mode,
+        ]
+        subprocess.run(cmd, check=True)
+        return biom.load_table(output_path)
 
 
 def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
-    """
-    Takes the parameters needed for MetaPhlAn4 and combines them
-    into a valid string.
+    """Take the parameters needed for MetaPhlAn4 and combines them into a valid string.
 
     Parameters
     ----------
@@ -179,22 +222,20 @@ def run(
             )
 
         final_tables = {}
-        for (name, method) in [
-            ("genefamilies", "cpm"),
-            ("pathcoverage", "relab"),
-            ("pathabundance", "relab"),
-            ("taxonomy", "relab"),
+        for name in [
+            "genefamilies",
+            "pathcoverage",
+            "pathabundance",
+            "taxonomy",
         ]:
             joined_path = os.path.join(tmp, "%s.biom" % name)
-            result_path = os.path.join(tmp, "%s.%s.biom" % (name, method))
 
             if name == "taxonomy":
-                _join_taxa_tables(input_dir_path=tmp, output_path=result_path)
+                _join_taxa_tables(input_dir_path=tmp, output_path=joined_path)
             else:
                 _join_tables(table=tmp, output=joined_path, name=name)
-                _renorm(joined_path, method, result_path)
 
-            final_tables[name] = biom.load_table(result_path)
+            final_tables[name] = biom.load_table(joined_path)
 
     return (
         final_tables["genefamilies"],
@@ -256,9 +297,6 @@ def rename_gene_families(
 
     """
     return _rename_table(table, name, reference_mapping, simplify)
-
-
-# def rename_pathways()
 
 
 def _rename_table(
