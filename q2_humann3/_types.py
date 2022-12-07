@@ -1,3 +1,4 @@
+from q2_types.feature_table import FeatureTable
 from qiime2.plugin import SemanticType
 
 HumannDB = SemanticType("HumannDB", field_names=["annotation"])
@@ -8,4 +9,7 @@ Pathway = SemanticType("Pathway", variant_of=HumannDB.field["annotation"])
 PathwayMapping = SemanticType("PathwayMapping", variant_of=HumannDB.field["annotation"])
 ReferenceNameMapping = SemanticType(
     "ReferenceNameMapping", variant_of=HumannDB.field["annotation"]
+)
+ReadsPerKilobase = SemanticType(
+    "ReadsPerKilobase", variant_of=FeatureTable.field["content"]
 )

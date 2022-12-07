@@ -1,5 +1,6 @@
 import qiime2.plugin
-from q2_types.feature_table import FeatureTable, Frequency, RelativeFrequency
+from q2_types.feature_table import (BIOMV210DirFmt, BIOMV210Format,
+                                    FeatureTable, Frequency, RelativeFrequency)
 from q2_types.per_sample_sequences import SequencesWithQuality
 from q2_types.sample_data import SampleData
 from qiime2.plugin import Bool, Choices, Float, Int, Range, SemanticType, Str
@@ -10,7 +11,7 @@ from q2_humann3._format import (Bowtie2IndexDirFmt2, HumannDbDirFormat,
                                 HumannDBSingleFileDirFormat,
                                 HumannDBSingleReferenceFileDirFormat)
 from q2_humann3._types import (HumannDB, Nucleotide, Pathway, PathwayMapping,
-                               Protein, ReferenceNameMapping)
+                               Protein, ReadsPerKilobase, ReferenceNameMapping)
 
 plugin = qiime2.plugin.Plugin(
     name="humann3",
@@ -26,7 +27,7 @@ plugin = qiime2.plugin.Plugin(
 )
 
 plugin.register_semantic_types(
-    HumannDB, Nucleotide, Pathway, Protein, ReferenceNameMapping
+    HumannDB, Nucleotide, Pathway, Protein, ReferenceNameMapping, ReadsPerKilobase
 )
 
 plugin.register_formats(
@@ -57,6 +58,7 @@ plugin.register_semantic_type_to_format(
     HumannDB[ReferenceNameMapping],
     HumannDBSingleReferenceFileDirFormat,
 )
+plugin.register_semantic_type_to_format(FeatureTable[ReadsPerKilobase], BIOMV210DirFmt)
 
 plugin.methods.register_function(
     function=q2_humann3.run,
@@ -74,10 +76,10 @@ plugin.methods.register_function(
         "metaphlan_stat_q": Float % Range(0, 1, inclusive_end=True),
     },
     outputs=[
-        ("genefamilies", FeatureTable[Frequency]),  # type: ignore
-        ("pathcoverage", FeatureTable[RelativeFrequency]),  # type: ignore
-        ("pathabundance", FeatureTable[RelativeFrequency]),  # type: ignore
-        ("taxonomy", FeatureTable[RelativeFrequency]),  # type: ignore
+        ("genefamilies", FeatureTable[ReadsPerKilobase]),  # type: ignore
+        ("pathcoverage", FeatureTable[ReadsPerKilobase]),  # type: ignore
+        ("pathabundance", FeatureTable[ReadsPerKilobase]),  # type: ignore
+        ("taxonomy", FeatureTable[Frequency]),  # type: ignore
     ],
     input_descriptions={
         "demultiplexed_seqs": (
@@ -122,6 +124,58 @@ plugin.methods.register_function(
     name="Characterize samples using HUMAnN3",
     description="Execute the HUMAnN3",
 )
+
+
+plugin.methods.register_function(
+    function=q2_humann3.cpm,
+    # This should be made to be more generic
+    inputs={
+        "humann3_table": FeatureTable[ReadsPerKilobase],
+    },
+    parameters={
+        "mode": Str % Choices({"community", "levelwise"}),
+    },
+    outputs=[
+        ("cpm_table", FeatureTable[Frequency]),  # type: ignore
+    ],
+    input_descriptions={
+        "humann3_table": ("output table produced by humann 3"),
+    },
+    parameter_descriptions={
+        "mode": "Normalize all levels by [community] total or [levelwise] totals; default=[community]",
+    },
+    output_descriptions={
+        "cpm_table": ("Normalized table based on CPM method"),
+    },
+    name="Normalize table with CPM",
+    description="Helper function to normalize table",
+)
+
+plugin.methods.register_function(
+    function=q2_humann3.relab,
+    # This should be made to be more generic
+    inputs={
+        "humann3_table": FeatureTable[ReadsPerKilobase],
+    },
+    parameters={
+        "mode": Str % Choices({"community", "levelwise"}),
+    },
+    outputs=[
+        ("relab_table", FeatureTable[RelativeFrequency]),  # type: ignore
+    ],
+    input_descriptions={
+        "humann3_table": ("output table produced by humann 3"),
+    },
+    parameter_descriptions={
+        "mode": "Normalize all levels by [community] total or [levelwise] totals; default=[community]",
+    },
+    output_descriptions={
+        "relab_table": ("Normalized table based on relab method"),
+    },
+    name="Normalize table with relab",
+    description="Helper function to normalize table",
+)
+
 
 _rename_params = {
     "parameters": {
