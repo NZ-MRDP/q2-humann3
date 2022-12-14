@@ -75,7 +75,7 @@ plugin.methods.register_function(
     },
     outputs=[
         ("genefamilies", FeatureTable[Frequency]),  # type: ignore
-        ("pathcoverage", FeatureTable[RelativeFrequency]),  # type: ignore
+        ("pathcoverage", FeatureTable[Frequency]),  # type: ignore
         ("pathabundance", FeatureTable[RelativeFrequency]),  # type: ignore
         ("taxonomy", FeatureTable[RelativeFrequency]),  # type: ignore
     ],
@@ -90,7 +90,7 @@ plugin.methods.register_function(
         "protein_database": "directory containing the protein database",
         "pathway_database": "directory providing a tab-delimited mapping",
         "pathway_mapping": "directory providing the pathways mapping",
-        "bowtie_database": "directory containing the bowtie2 executable",
+        "bowtie_database": "directory containing the bowtie2 database reference files",
     },
     parameter_descriptions={
         "threads": "number of threads/processes",
