@@ -180,7 +180,7 @@ def run(
 
         final_tables = {}
         for (name, method) in [
-            ("genefamilies", "cpm"),
+            ("genefamilies", "relab"),
             ("pathcoverage", "relab"),
             ("pathabundance", "relab"),
             ("taxonomy", "relab"),
@@ -192,9 +192,11 @@ def run(
                 _join_taxa_tables(input_dir_path=tmp, output_path=result_path)
             else:
                 _join_tables(table=tmp, output=joined_path, name=name)
-                _renorm(joined_path, method, result_path)
-
-            final_tables[name] = biom.load_table(result_path)
+                if name != "pathcoverage":
+                    _renorm(joined_path, method, result_path)
+                    final_tables[name] = biom.load_table(result_path)
+                else:
+                    final_tables[name] = biom.load_table(joined_path)
 
     return (
         final_tables["genefamilies"],
