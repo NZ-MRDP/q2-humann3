@@ -190,6 +190,7 @@ def run(
 
             if name == "taxonomy":
                 _join_taxa_tables(input_dir_path=tmp, output_path=result_path)
+                final_tables[name] = biom.load_table(result_path)
             else:
                 _join_tables(table=tmp, output=joined_path, name=name)
                 if name != "pathcoverage":
