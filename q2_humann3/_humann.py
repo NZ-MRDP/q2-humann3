@@ -1,10 +1,11 @@
 import os
 import subprocess
 import tempfile
+from functools import partial
 from glob import glob
+from multiprocessing import Pool
 
 import biom
-import pandas as pd
 from q2_types.feature_table import BIOMV210Format
 from q2_types.per_sample_sequences import (
     FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
@@ -25,6 +26,7 @@ def _single_sample(
     metaphlan_options: str,
     output: str,
 ) -> None:
+    print("this is the nucleotide_database path: ", nucleotide_database_path)
     cmd = [
         "humann3",
         "-i",
@@ -116,7 +118,8 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
         Quantile value for the robust average
     """
     # TODO: The index needs to be set programmatically
-    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
+    print(bowtie2db)
+    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation --nproc 1"
 
 
 def run(
@@ -126,7 +129,8 @@ def run(
     pathway_database: HumannDBSingleFileDirFormat,
     pathway_mapping: HumannDBSingleFileDirFormat,
     bowtie_database: Bowtie2IndexDirFmt2,
-    threads: int = 1,
+    sample_threads: int = 1,
+    humann3_threads: int = 1,
     memory_use: str = "minimum",
     metaphlan_stat_q: float = 0.2,
 ) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
@@ -160,23 +164,28 @@ def run(
         A pathway abundance table normalized by relative abundance
     """
     with tempfile.TemporaryDirectory() as tmp:
-        iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
-        for _, view in iter_view:
-            metaphlan_options = _metaphlan_options(
-                str(bowtie_database),
-                metaphlan_stat_q,
-            )
-            _single_sample(
-                str(view),
-                nucleotide_database_path=str(nucleotide_database),
-                protein_database_path=str(protein_database),
-                pathway_database_path=str(pathway_database),
-                pathway_mapping_path=str(pathway_mapping),
-                threads=threads,
-                memory_use=memory_use,
-                metaphlan_options=metaphlan_options,
-                output=tmp,
-            )
+
+        metaphlan_options = _metaphlan_options(
+            str(bowtie_database),
+            metaphlan_stat_q,
+        )
+
+        threaded_single_sample = partial(
+            _single_sample,
+            protein_database_path=str(protein_database),
+            nucleotide_database_path=str(nucleotide_database),
+            pathway_database_path=str(pathway_database),
+            pathway_mapping_path=str(pathway_mapping),
+            threads=humann3_threads,
+            memory_use=memory_use,
+            metaphlan_options=metaphlan_options,
+            output=tmp,
+        )
+
+        iter_view = [str(e) for _, e in demultiplexed_seqs.sequences.iter_views(FastqGzFormat)]  # type: ignore
+
+        with Pool(processes=sample_threads) as pool:
+            pool.map(threaded_single_sample, iter_view)
 
         final_tables = {}
         for (name, method) in [
