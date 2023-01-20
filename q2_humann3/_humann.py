@@ -26,7 +26,6 @@ def _single_sample(
     metaphlan_options: str,
     output: str,
 ) -> None:
-    print("this is the nucleotide_database path: ", nucleotide_database_path)
     cmd = [
         "humann3",
         "-i",
@@ -118,7 +117,6 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
         Quantile value for the robust average
     """
     # TODO: The index needs to be set programmatically
-    print(bowtie2db)
     return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation --nproc 1"
 
 
