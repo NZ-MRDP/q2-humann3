@@ -127,7 +127,6 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
         )
 
     (index_name,) = index_name
-    # index = os.path.join(bowtie2db, index_name)
     return f"--offline --bowtie2db {bowtie2db} --index {index_name} --stat_q {stat_q} --add_viruses --unclassified_estimation"
 
 
