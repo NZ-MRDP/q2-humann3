@@ -104,7 +104,7 @@ def _renorm(table: str, method: str, output: str) -> None:
     subprocess.run(cmd, check=True)
 
 
-def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
+def _metaphlan_options(bowtie2db: str, stat_q: float, humann3_threads: int = 1) -> str:
     """
     Takes the parameters needed for MetaPhlAn4 and combines them
     into a valid string.
@@ -117,7 +117,10 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
         Quantile value for the robust average
     """
     # TODO: The index needs to be set programmatically
-    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation --nproc 1"
+    metaphlan_string = f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
+    # Humann3 defaults to 4 threads, when 1 thread is specified, so we're forcing it to 1 here
+    if humann3_threads == 1:
+        metaphlan_string += " --nproc 1"
 
 
 def run(
@@ -166,6 +169,7 @@ def run(
         metaphlan_options = _metaphlan_options(
             str(bowtie_database),
             metaphlan_stat_q,
+            humann3_threads,
         )
 
         threaded_single_sample = partial(
