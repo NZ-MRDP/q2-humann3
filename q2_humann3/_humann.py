@@ -119,8 +119,10 @@ def _metaphlan_options(bowtie2db: str, stat_q: float, humann3_threads: int = 1) 
     # TODO: The index needs to be set programmatically
     metaphlan_string = f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
     # Humann3 defaults to 4 threads, when 1 thread is specified, so we're forcing it to 1 here
+    # Otherwise is should not be specified
     if humann3_threads == 1:
         metaphlan_string += " --nproc 1"
+    return metaphlan_string
 
 
 def run(
