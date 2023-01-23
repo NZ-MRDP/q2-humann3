@@ -31,12 +31,12 @@ HumannDBSingleReferenceFileDirFormat = model.SingleFileDirectoryFormat(
 
 
 class Bowtie2IndexDirFmt2(model.DirectoryFormat):
-    idx1 = model.File(r".+(?<!\.rev)\.1\.bt2l?", format=Bowtie2IndexFileFormat)
-    idx2 = model.File(r".+(?<!\.rev)\.2\.bt2l?", format=Bowtie2IndexFileFormat)
-    ref3 = model.File(r".+\.3\.bt2l?", format=Bowtie2IndexFileFormat)
-    ref4 = model.File(r".+\.4\.bt2l?", format=Bowtie2IndexFileFormat)
-    rev1 = model.File(r".+\.rev\.1\.bt2l?", format=Bowtie2IndexFileFormat)
-    rev2 = model.File(r".+\.rev\.2\.bt2l?", format=Bowtie2IndexFileFormat)
+    idx1 = model.File(r".+(?<!\.rev)\.1\.bt2l", format=Bowtie2IndexFileFormat)
+    idx2 = model.File(r".+(?<!\.rev)\.2\.bt2l", format=Bowtie2IndexFileFormat)
+    ref3 = model.File(r".+\.3\.bt2l", format=Bowtie2IndexFileFormat)
+    ref4 = model.File(r".+\.4\.bt2l", format=Bowtie2IndexFileFormat)
+    rev1 = model.File(r".+\.rev\.1\.bt2l", format=Bowtie2IndexFileFormat)
+    rev2 = model.File(r".+\.rev\.2\.bt2l", format=Bowtie2IndexFileFormat)
     pkl = model.File(r".+\.pkl?", format=Bowtie2IndexFileFormat)
 
     def get_basename(self):
