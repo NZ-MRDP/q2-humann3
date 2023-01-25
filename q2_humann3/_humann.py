@@ -4,7 +4,6 @@ import tempfile
 from glob import glob
 
 import biom
-import pandas as pd
 from q2_types.feature_table import BIOMV210Format
 from q2_types.per_sample_sequences import (
     FastqGzFormat, SingleLanePerSampleSingleEndFastqDirFmt)
@@ -116,7 +115,19 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
         Quantile value for the robust average
     """
     # TODO: The index needs to be set programmatically
-    return f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
+
+    # Calling bowtie in this way requires an index name, which is actually just the filenames in
+    # The bowtie2db directory without the extensions
+    index_name = {e.split(".")[0] for e in os.listdir(bowtie2db)}
+    if len(index_name) != 1:
+        raise ValueError(
+            "The index files in the Bowtie database are not named in a"
+            " consistent fashion. Check that all files in the bowtie"
+            " database have the same base name."
+        )
+
+    (index_name,) = index_name
+    return f"--offline --bowtie2db {bowtie2db} --index {index_name} --stat_q {stat_q} --add_viruses --unclassified_estimation"
 
 
 def run(
@@ -161,6 +172,7 @@ def run(
     """
     with tempfile.TemporaryDirectory() as tmp:
         iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
+
         for _, view in iter_view:
             metaphlan_options = _metaphlan_options(
                 str(bowtie_database),
