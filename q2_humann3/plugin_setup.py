@@ -42,16 +42,6 @@ plugin.register_semantic_type_to_format(
 )
 Bowtie2Index2 = SemanticType("Bowtie2Index2")
 
-plugin.register_artifact_class(
-    description=(
-        "The Bowtie2Index2 represents a bowtie 2 database"
-        " The files required for the Bowtie2Index2 are files ending in:"
-        " .1.bt2l, .2.bt2l, .3.bt2l, .4.bt2l, .rev.1.bt2l, .rev.2.bt2l, .pkl"
-        " No other filetypes are allowed here"
-    ),
-    directory_format=Bowtie2IndexDirFmt2,
-)
-
 plugin.register_semantic_types(Bowtie2Index2)
 plugin.register_semantic_type_to_format(Bowtie2Index2, Bowtie2IndexDirFmt2)
 
@@ -101,7 +91,7 @@ plugin.methods.register_function(
         "protein_database": "directory containing the protein database",
         "pathway_database": "directory providing a tab-delimited mapping",
         "pathway_mapping": "directory providing the pathways mapping",
-        "bowtie_database": "Bowtie2Index2 formatted reference database",
+        "bowtie_database": "directory containing the bowtie2 database reference files",
     },
     parameter_descriptions={
         "sample_threads": (
