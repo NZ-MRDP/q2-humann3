@@ -117,7 +117,16 @@ def _metaphlan_options(bowtie2db: str, stat_q: float, humann3_threads: int = 1) 
         Quantile value for the robust average
     """
     # TODO: The index needs to be set programmatically
-    metaphlan_string = f"--offline --bowtie2db {bowtie2db} --index mpa_vJan21_CHOCOPhlAnSGB_202103 --stat_q {stat_q} --add_viruses --unclassified_estimation"
+    index_name = {e.split(".")[0] for e in os.listdir(bowtie2db)}
+    if len(index_name) != 1:
+        raise ValueError(
+            "The index files in the Bowtie database are not named in a"
+            " consistent fashion. Check that all files in the bowtie"
+            " database have the same base name."
+        )
+
+    (index_name,) = index_name
+    metaphlan_string = f"--offline --bowtie2db {bowtie2db} --index {index_name} --stat_q {stat_q} --add_viruses --unclassified_estimation"
     # Humann3 defaults to 4 threads, when 1 thread is specified, so we're forcing it to 1 here
     # Otherwise is should not be specified
     if humann3_threads == 1:
