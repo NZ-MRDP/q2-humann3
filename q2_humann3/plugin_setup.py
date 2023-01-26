@@ -91,7 +91,7 @@ plugin.methods.register_function(
         "protein_database": "directory containing the protein database",
         "pathway_database": "directory providing a tab-delimited mapping",
         "pathway_mapping": "directory providing the pathways mapping",
-        "bowtie_database": "directory containing the bowtie2 database reference files",
+        "bowtie_database": "Bowtie2Index2 formatted reference database",
     },
     parameter_descriptions={
         "sample_threads": (
