@@ -69,7 +69,7 @@ plugin.methods.register_function(
         "bowtie_database": Bowtie2Index2,
     },
     parameters={
-        "sample_threads": Int,
+        "n_parallel_samples": Int,
         "humann3_threads": Int,
         "memory_use": Str % Choices({"minimum", "maximum"}),
         "metaphlan_stat_q": Float % Range(0, 1, inclusive_end=True),
@@ -94,7 +94,7 @@ plugin.methods.register_function(
         "bowtie_database": "directory containing the bowtie2 database reference files",
     },
     parameter_descriptions={
-        "sample_threads": (
+        "n_parallel_samples": (
             "Humann3 runs explicitly on a per-sample basis however q2-humann3 runs on a table of samples, i.e. "
             "multiple samples. The sample-thread specifies how many samples should be run in parallel, this should "
             "be a maximuim of n-1 processors. It is important to note that the memory required will scale "

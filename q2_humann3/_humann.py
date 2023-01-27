@@ -141,7 +141,7 @@ def run(
     pathway_database: HumannDBSingleFileDirFormat,
     pathway_mapping: HumannDBSingleFileDirFormat,
     bowtie_database: Bowtie2IndexDirFmt2,
-    sample_threads: int = 1,
+    n_parallel_samples: int = 1,
     humann3_threads: int = 1,
     memory_use: str = "minimum",
     metaphlan_stat_q: float = 0.2,
@@ -197,7 +197,7 @@ def run(
 
         iter_view = [str(e) for _, e in demultiplexed_seqs.sequences.iter_views(FastqGzFormat)]  # type: ignore
 
-        with Pool(processes=sample_threads) as pool:
+        with Pool(processes=n_parallel_samples) as pool:
             pool.map(threaded_single_sample, iter_view)
 
         final_tables = {}
