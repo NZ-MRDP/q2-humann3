@@ -69,7 +69,8 @@ plugin.methods.register_function(
         "bowtie_database": Bowtie2Index2,
     },
     parameters={
-        "threads": Int,
+        "n_parallel_samples": Int,
+        "humann3_threads": Int,
         "memory_use": Str % Choices({"minimum", "maximum"}),
         "metaphlan_stat_q": Float % Range(0, 1, inclusive_end=True),
     },
@@ -93,7 +94,24 @@ plugin.methods.register_function(
         "bowtie_database": "directory containing the bowtie2 database reference files",
     },
     parameter_descriptions={
-        "threads": "number of threads/processes",
+        "n_parallel_samples": (
+            "Humann3 runs explicitly on a per-sample basis however q2-humann3 runs on a table of samples, i.e. "
+            "multiple samples. The sample-thread specifies how many samples should be run in parallel, this should "
+            "be a maximuim of n-1 processors. It is important to note that the memory required will scale "
+            "with threads. If 8GB of ram is expected for a single sample and 4 threads are selected you will need a "
+            "minimum of 32GB of ram. Memory use is highly dataset dependent and will change based on reference "
+            "databases, however, as a general run Humann3 will consume ~16GB of ram per sample. Use with caution"
+        ),
+        "humann3_threads": (
+            " The number of threads humann3 will use when processing a single sample. This will"
+            " for example call metaphlan with the number of threads specified where metaphlan will"
+            " implement its own multithreading. This should not be used in conjunction with the"
+            " sample_threads parameter. One or both of these paramers should be 1 unless you"
+            " are absolutely certain you have enough processors available. You should expect"
+            "  the number of processors required to be the number of"
+            " sample_threads * humann3_threads + 1, and the required memory to be a large multiple"
+            " of that, though it is highly dependent on your data set"
+        ),
         "memory_use": "the amount of memory to use",
         "metaphlan_stat_q": "Quantile value for the robust average",
     },

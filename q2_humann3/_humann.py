@@ -1,7 +1,9 @@
 import os
 import subprocess
 import tempfile
+from functools import partial
 from glob import glob
+from multiprocessing import Pool
 
 import biom
 from q2_types.feature_table import BIOMV210Format
@@ -102,7 +104,7 @@ def _renorm(table: str, method: str, output: str) -> None:
     subprocess.run(cmd, check=True)
 
 
-def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
+def _metaphlan_options(bowtie2db: str, stat_q: float, humann3_threads: int = 1) -> str:
     """
     Takes the parameters needed for MetaPhlAn4 and combines them
     into a valid string.
@@ -115,9 +117,6 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
         Quantile value for the robust average
     """
     # TODO: The index needs to be set programmatically
-
-    # Calling bowtie in this way requires an index name, which is actually just the filenames in
-    # The bowtie2db directory without the extensions
     index_name = {e.split(".")[0] for e in os.listdir(bowtie2db)}
     if len(index_name) != 1:
         raise ValueError(
@@ -127,7 +126,12 @@ def _metaphlan_options(bowtie2db: str, stat_q: float) -> str:
         )
 
     (index_name,) = index_name
-    return f"--offline --bowtie2db {bowtie2db} --index {index_name} --stat_q {stat_q} --add_viruses --unclassified_estimation"
+    metaphlan_string = f"--offline --bowtie2db {bowtie2db} --index {index_name} --stat_q {stat_q} --add_viruses --unclassified_estimation"
+    # Humann3 defaults to 4 threads, when 1 thread is specified, so we're forcing it to 1 here
+    # Otherwise is should not be specified
+    if humann3_threads == 1:
+        metaphlan_string += " --nproc 1"
+    return metaphlan_string
 
 
 def run(
@@ -137,7 +141,8 @@ def run(
     pathway_database: HumannDBSingleFileDirFormat,
     pathway_mapping: HumannDBSingleFileDirFormat,
     bowtie_database: Bowtie2IndexDirFmt2,
-    threads: int = 1,
+    n_parallel_samples: int = 1,
+    humann3_threads: int = 1,
     memory_use: str = "minimum",
     metaphlan_stat_q: float = 0.2,
 ) -> (biom.Table, biom.Table, biom.Table, biom.Table):  # type:  ignore
@@ -171,24 +176,29 @@ def run(
         A pathway abundance table normalized by relative abundance
     """
     with tempfile.TemporaryDirectory() as tmp:
-        iter_view = demultiplexed_seqs.sequences.iter_views(FastqGzFormat)  # type: ignore
 
-        for _, view in iter_view:
-            metaphlan_options = _metaphlan_options(
-                str(bowtie_database),
-                metaphlan_stat_q,
-            )
-            _single_sample(
-                str(view),
-                nucleotide_database_path=str(nucleotide_database),
-                protein_database_path=str(protein_database),
-                pathway_database_path=str(pathway_database),
-                pathway_mapping_path=str(pathway_mapping),
-                threads=threads,
-                memory_use=memory_use,
-                metaphlan_options=metaphlan_options,
-                output=tmp,
-            )
+        metaphlan_options = _metaphlan_options(
+            str(bowtie_database),
+            metaphlan_stat_q,
+            humann3_threads,
+        )
+
+        threaded_single_sample = partial(
+            _single_sample,
+            protein_database_path=str(protein_database),
+            nucleotide_database_path=str(nucleotide_database),
+            pathway_database_path=str(pathway_database),
+            pathway_mapping_path=str(pathway_mapping),
+            threads=humann3_threads,
+            memory_use=memory_use,
+            metaphlan_options=metaphlan_options,
+            output=tmp,
+        )
+
+        iter_view = [str(e) for _, e in demultiplexed_seqs.sequences.iter_views(FastqGzFormat)]  # type: ignore
+
+        with Pool(processes=n_parallel_samples) as pool:
+            pool.map(threaded_single_sample, iter_view)
 
         final_tables = {}
         for (name, method) in [
