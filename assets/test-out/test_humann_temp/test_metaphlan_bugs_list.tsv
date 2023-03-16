@@ -1,5 +1,0 @@
-#mpa_v31_CHOCOPhlAn_201901
-#/Users/jhch/miniconda3/envs/qiime2-2022.8/bin/metaphlan /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/tmpzu4rpu7s/tmpc2226cuz -t rel_ab -o /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/test_metaphlan_bugs_list.tsv --input_type fastq --bowtie2out /Users/jhch/Code/q2-humann3/assets/test-out/test_humann_temp/test_metaphlan_bowtie2.txt
-#SampleID	Metaphlan_Analysis
-#clade_name	NCBI_tax_id	relative_abundance	additional_species
-UNKNOWN	-1	100.0	
