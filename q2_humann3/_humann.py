@@ -288,7 +288,7 @@ def rename_gene_families(
 
 def _rename_table(
     table: BIOMV210Format,
-    name: str = None,
+    name: str = "",
     reference_mapping: HumannDBSingleReferenceFileDirFormat = None,
     simplify: bool = False,
 ) -> biom.Table:  # type: ignore

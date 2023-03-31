@@ -143,8 +143,7 @@ plugin.methods.register_function(
 
 _rename_params = {
     "parameters": {
-        "name": Int % None
-        | Str  # type: ignore
+        "name": Str  # type: ignore
         % Choices(
             {
                 "kegg-orthology",
