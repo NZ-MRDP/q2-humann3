@@ -156,9 +156,6 @@ _rename_params = {
                 "eggnog",
                 "go",
                 "infogo1000",
-                "uniref90",
-                "uniref50"
-
             }
         ),
         "simplify": Bool,
