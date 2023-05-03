@@ -204,7 +204,7 @@ plugin.methods.register_function(
     },
     name="Rename Pathways Table",
     outputs=[
-        ("rename_table", FeatureTable[RelativeFrequency]),  # type: ignore
+        ("rename_table", FeatureTable[Frequency]),  # type: ignore
     ],
     **_rename_params
 )
