@@ -199,7 +199,7 @@ plugin.methods.register_function(
 plugin.methods.register_function(
     function=q2_humann3.rename_gene_families,
     inputs={
-        "table": FeatureTable[RelativeFrequency],
+        "table": FeatureTable[Frequency],
         "reference_mapping": HumannDB[ReferenceNameMapping],
     },
     name="Rename Pathways Table",
