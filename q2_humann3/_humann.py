@@ -292,7 +292,7 @@ def _rename_table(
     reference_mapping: HumannDBSingleReferenceFileDirFormat = None,
     simplify: bool = False,
 ) -> biom.Table:  # type: ignore
-    """rename_table.
+    """_rename_table.
 
     Parameters
     ----------
@@ -300,6 +300,8 @@ def _rename_table(
         table
     name : str
         name
+    reference_mapping : HumannDBSingleReferenceFileDirFormat
+        reference_mapping
     simplify : bool
         simplify
 
@@ -323,7 +325,7 @@ def _rename_table(
             cmd.append("--simplify")
 
         if name:
-            cmd.extend(["n", name])
+            cmd.extend(["-n", name])
 
         if reference_mapping:
             cmd.extend(
