@@ -198,7 +198,12 @@ def run(
         iter_view = [str(e) for _, e in demultiplexed_seqs.sequences.iter_views(FastqGzFormat)]  # type: ignore
 
         with Pool(processes=n_parallel_samples) as pool:
-            pool.map(threaded_single_sample, iter_view)
+            try:
+                pool.map(threaded_single_sample, iter_view)
+            except subprocess.CalledProcessError as e:
+                print(f"Command failed with return code {e.returncode}")
+                print(f"Command output: {e.output}")
+                print(f"Command stderr: {e.stderr}")
 
         final_tables = {}
         for (name, method) in [
