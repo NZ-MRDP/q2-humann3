@@ -207,7 +207,6 @@ def run(
                 print(f"Command stderr: {e.stderr}")
                 sys.exit(1)
 
-
         final_tables = {}
         for (name, method) in [
             ("genefamilies", "relab"),
