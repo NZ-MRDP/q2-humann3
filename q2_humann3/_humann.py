@@ -4,6 +4,7 @@ import tempfile
 from functools import partial
 from glob import glob
 from multiprocessing import Pool
+import sys
 
 import biom
 from q2_types.feature_table import BIOMV210Format
@@ -204,6 +205,7 @@ def run(
                 print(f"Command failed with return code {e.returncode}")
                 print(f"Command output: {e.output}")
                 print(f"Command stderr: {e.stderr}")
+                sys.exit(1)
 
         final_tables = {}
         for (name, method) in [
